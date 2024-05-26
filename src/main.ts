@@ -23,4 +23,5 @@ passport.use(new JwtStrategy({
     (payload, done) => {
     const userId = payload.sub;
     done(null, { userId })
+    
 }));

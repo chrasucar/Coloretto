@@ -76,7 +76,7 @@ export class GameService {
 
   private takeCardFromDeck(gameId: string) {
 
-    // Implementa la lógica para tomar una carta del mazo y devolverla.
+    // Implementar la lógica para tomar una carta del mazo y devolverla.
 
     return {};
 
