@@ -1,14 +1,23 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { join } from 'path';
 import { config } from 'dotenv';
-import { UsersModule } from './users/users.module';
-import { GameModule } from './game/game.module';
-import { AuthModule } from './users/auth/auth.module';
+import { AppController } from './app.controller';
+import { ServeStaticModule } from '@nestjs/serve-static';
+
+// Usuarios
+
 import { User, UserSchema } from './users/user.schema';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { UsersModule } from './users/users.module';
+
+// Juego
+
+import { GameModule } from './game/game.module';
+import { AuthModule } from './users/auth/auth.module';
+import { GameController } from './game/game.controller';
+
 
 config();
 
@@ -24,7 +33,7 @@ config();
             GameModule,
   ],
 
-  controllers: [UsersController],
+  controllers: [UsersController, GameController, AppController],
   providers: [UsersService],
   
 })

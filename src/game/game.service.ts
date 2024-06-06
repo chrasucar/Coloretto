@@ -1,92 +1,133 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { GameGateway } from './game.gateway';
+import { GameState } from './game.state';
+import { Socket } from 'socket.io';
+import { Game, GameDocument } from './game.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class GameService {
+  games: { [key: string]: GameState } = {};
 
-  private games: { [key: string]: any } = {};
+  constructor(
+    @Inject(forwardRef(() => GameGateway))
+    private readonly gameGateway: GameGateway,
+    @InjectModel(Game.name) private readonly gameModel: Model<GameDocument>,
+  ) {}
 
-  joinGame(clientId: string, gameId: string) {
+  // Obtener id del estado del juego.
 
-    if (!this.games[gameId]) {
-
-      this.games[gameId] = {
-        players: [],
-        deck: this.generateDeck(), 
-        hands: {}, 
-        table: [], 
-        score: {}, 
-
-      };
-    }
-
-    if (!this.games[gameId].players.includes(clientId)) {
-
-      this.games[gameId].players.push(clientId);
-      this.games[gameId].hands[clientId] = []; // Inicializar la mano del jugador.
-      this.games[gameId].score[clientId] = 0; // Inicializar la puntuación del jugador.
-
-    }
-
-    // Enviar el estado del juego actualizado a todos los jugadores.
-
-    this.updateGameState(gameId);
-
-  }
-
-  makeMove(clientId: string, gameId: string, move: any) {
-
-    if (!this.games[gameId]) {
-
-      throw new Error(`Partida ${gameId} no encontrada.`);
-
-    }
-
-    // Lógica para realizar un movimiento, por ejemplo, tomar una carta del mazo.
-
-    const card = this.takeCardFromDeck(gameId);
-
-    // Añadir la carta a la mano del jugador.
-
-    this.games[gameId].hands[clientId].push(card);
-
-    // Envía el estado del juego actualizado a todos los jugadores.
-
-    this.updateGameState(gameId);
-
-  }
-
-  getGameState(gameId: string) {
-
+  async getGameState(userId: string): Promise<GameState | undefined> {
+    const gameId = userId;
     return this.games[gameId];
+  }
+
+  // Seleccionar número de jugadores.
+
+  async selectNumberOfPlayers(numberOfPlayers: number): Promise<GameState> {
+    const newGame = new this.gameModel({
+      numberOfPlayers,
+      players: [], // Inicialmente no hay jugadores
+      deck: [], // Inicialmente el mazo está vacío
+      discardedCards: [], // Inicialmente no hay cartas descartadas
+      activeColumn: { cards: [], selected: false }, // Inicialmente no hay columna activa
+      gameStarted: false, // La partida no ha comenzado todavía
+      moves: [], // Lista de movimientos vacía
+    });
+    const result = await newGame.save();
+    return result.toObject() as GameState; 
+  }
+
+  // Unirse a una partida.
+
+  async joinGame(client: Socket, gameId: string) {
+    if (!gameId) {
+      console.error('El id de juego es nulo o indefinido.');
+      return;
+    }
+
+    if (!this.games[gameId]) {
+      this.games[gameId] = this.initializeGameState(gameId);
+    }
+
+    const gameState = this.games[gameId];
+
+    const existingPlayer = gameState.players.find(player => player.name === `Player ${client.id}`);
+
+    if (!existingPlayer) {
+
+      gameState.players.push({ name: `Player ${client.id}`, moves: [], hand: [], score: 0 });
+
+    }
+
+    client.join(gameId); 
+
+    this.gameGateway.emitGameState(gameId, gameState);
 
   }
 
-  // Función para generar un mazo de cartas.
+  // Jugador realiza un movimiento.
 
-  private generateDeck() {
+  async makeMove(client: Socket, gameId: string, move: string) {
+    const gameState = await this.getGameState(gameId);
 
-    // Implementar la lógica para generar las cartas del juego
-    // Definir la estructura de las cartas y su cantidad según las reglas de Coloretto.
+    if (gameState && gameState.players) {
+      gameState.moves.push(move);
+      this.recordMove(gameState, client.id, move);
+      this.updateGameState(gameId);
 
-    return [];
+    } 
+    
+    else {
 
+      console.error('Los jugadores o el estado del juego son indefinidos.', gameId);
+
+    }
   }
 
-  // Función para tomar una carta del mazo.
+  // Función privada: Lanzar movimientos.
 
-  private takeCardFromDeck(gameId: string) {
+  private recordMove(gameState: GameState, playerId: string, move: string) {
+    if (gameState && gameState.players) {
+      const player = gameState.players.find(player => player.name === playerId);
+      if (player) {
+        player.moves.push(move);
+      }
 
-    // Implementar la lógica para tomar una carta del mazo y devolverla.
+      // Modo de ejemplo, se añadirán más.
 
-    return {};
-
+      if (move.toLowerCase() === 'arriba') {
+        gameState.currentPlayer = playerId;
+      }
+    } else {
+      console.error('Los jugadores o el estado del juego son indefinidos.');
+    }
   }
 
-  // Función para enviar el estado del juego actualizado a todos los jugadores.
+  // Actualizar estado del juego.
 
-  private updateGameState(gameId: string) {
+  async updateGameState(gameId: string) {
+    const gameState = this.games[gameId];
+    if (gameState) {
+      this.gameGateway.emitGameState(gameId, gameState);
+    } else {
+      console.error('gameState is undefined for game', gameId);
+    }
+  }
 
-    // Implementar la lógica para enviar el estado del juego actualizado a todos los jugadores.
+  // Datos al iniciar la partida.
 
+  private initializeGameState(gameId: string): GameState {
+    return {
+      gameId: gameId,
+      currentPlayer: '',
+      players: [],
+      deck: [],
+      discardedCards: [],
+      activeColumn: { cards: [], selected: false },
+      gameStarted: false,
+      moves: []
+    };
   }
 }

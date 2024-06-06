@@ -8,11 +8,6 @@ export type UserDocument = User & Document;
 @Schema()
 export class User {
 
-  // Para hashear contraseñas.
-
-  @Prop()
-  salt: string;
-
   // Id para cada usuario.
 
   @Prop()
@@ -67,6 +62,16 @@ export class User {
 
   @Prop({ default: null })
   lastSeen: Date;
+
+  // Conectado o no.
+
+  @Prop({ default: false })
+  isOnline: boolean;
+
+  // Tiempo de comienzo al iniciar sesión.
+  
+  @Prop()
+  connectionStartTime: Date;
 
 }
 
