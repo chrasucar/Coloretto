@@ -4,14 +4,14 @@ import {
   loginRequest,
   verifyToken,
   removeToken,
+  getAllUsernames,
   profileUser,
   removeAccount,
   updateProfilePicture,
   updateEmail,
   updatePassword,
-  getContacts,
   getConnectionTime,
-  GameState,
+  getAllMessages,
 } from '../api/auth';
 import Cookies from 'js-cookie';
 import { useParams } from 'react-router-dom';
@@ -29,17 +29,15 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children, navigate }) => {
+
   const [user, setUser] = useState(null);
-  const [contacts, setContacts] = useState([]);
+  const [users, setUsers] = useState([]);
   const [connectionTime, setConnectionTime] = useState(null);
   const [authenticated, setAuthenticated] = useState(false);
   const [error, setError] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [messages, setMessages] = useState([]);
   const { username: paramUsername } = useParams();
-
-  // ----------------------------Juego-----------------------------
-
-  const [gameState] = useState(null);
 
   // Registro.
 
@@ -83,6 +81,21 @@ export const AuthProvider = ({ children, navigate }) => {
     }
   };
 
+  // Obtener todos los nombres de usuario.
+  
+  const fetchAllUsernames = async () => {
+    try {
+      const response = await getAllUsernames();
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error al obtener los nombres de usuario:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllUsernames();
+  }, []);
+
   // Perfil del usuario.
 
   const fetchUserProfile = async (user) => {
@@ -102,35 +115,6 @@ export const AuthProvider = ({ children, navigate }) => {
       console.error('Error al obtener el perfil de usuario.', error);
     }
   };
-
-  // Obtener usuario.
-
-  const getUser = async (username) => {
-    try {
-      const res = await profileUser(username);
-
-      return res.data;
-    } catch (error) {
-      console.log('Fallo obteniendo el usuario:', error);
-    }
-  };
-
-  // Obtener contactos del usuario.
-
-  const fetchContacts = async (username) => {
-    try {
-      const response = await getContacts(username);
-      setContacts(response.data);
-    } catch (error) {
-      console.error('Error fetching contacts:', error);
-    }
-  };
-
-  useEffect(() => {
-    if (user && user.profile) {
-      fetchContacts(user.profile.username);
-    }
-  }, [user]);
 
   // Obtener tiempo de conexión del usuario.
 
@@ -285,34 +269,6 @@ export const AuthProvider = ({ children, navigate }) => {
     }
   };
 
-  // ------------------------ JUEGO -----------------------
-
-  // Obtener estado del juego.
-
-  const fetchGameState = async (userId) => {
-    try {
-      const res = await GameState(userId);
-      return res.data;
-    } catch (error) {
-      console.error('Error obteniendo el estado del juego:', error);
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      fetchGameState(user._id);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (error.length > 0) {
-      const timer = setTimeout(() => {
-        setError([]);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [error]);
-
   // Comprobar inicio de sesión.
 
   useEffect(() => {
@@ -353,45 +309,50 @@ export const AuthProvider = ({ children, navigate }) => {
   // Cargar perfil.
 
   useEffect(() => {
-    async function loadProfile() {
-      if (paramUsername) {
-        await fetchUserProfile(paramUsername);
-        if (user && user.profile && user.profile.username) {
-          await fetchContacts(user.profile.username);
-        } else {
-          console.error(
-            'Error al obtener el usuario o el perfil de usuario.',
-            user,
-          );
-        }
-      }
+    if (paramUsername) {
+      fetchUserProfile(paramUsername);
     }
+  }, [paramUsername]);
 
-    loadProfile();
-  }, [paramUsername, fetchUserProfile]);
+  // -------------------------------------------Chat General: Mensajes---------------------------
+
+  // Obtener todos los mensajes.
+  const fetchAllMessages = async () => {
+    try {
+      const response = await getAllMessages();
+      setMessages(response.data);
+    } catch (error) {
+      console.error('Error al obtener los mensajes:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllUsernames();
+    fetchAllMessages(); 
+  }, []);
+
 
   return (
     <AuthContext.Provider
       value={{
         signUp,
         signIn,
+        fetchAllUsernames,
         fetchUserProfile,
         logout,
         updateProfilePicture,
         handleUpdateProfilePicture,
-        getUser,
         handleUpdateEmail,
         handleUpdatePassword,
         deleteUserAccount,
-        fetchContacts,
         fetchConnectionTime,
-        fetchGameState,
+        fetchAllMessages,
         user,
-        contacts,
+        users,
         connectionTime,
+        messages,
         loading,
         authenticated,
-        gameState,
         error,
       }}
     >

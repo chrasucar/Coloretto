@@ -35,10 +35,13 @@ function Navbar() {
           <>
             <li>Bienvenido {user.username}</li>
             <li>
-              <Link to={`/users/profile/${user.username}`}>Mi Perfil</Link>
+              <Link to="/play">Jugar</Link>
             </li>
             <li>
-              <Link to="/users/play">Jugar</Link>
+              <Link to="/chat">Chat</Link>
+            </li>
+            <li>
+              <Link to={`/users/profile/${user.username}`}>Mi Perfil</Link>
             </li>
             <li>
               <Link to="/" onClick={handleLogout}>

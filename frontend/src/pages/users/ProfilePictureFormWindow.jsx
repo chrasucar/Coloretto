@@ -11,11 +11,15 @@ function ProfilePictureFormWindow({
   const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState(null);
 
+  // Cambiar foto de perfil por archivo local.
+
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     setFile(selectedFile);
     setImageUrl('');
   };
+
+  // Cambiar foto de perfil por URL (no se ha desplegado aún, servirá cuando se despliegue).
 
   const handleUrlChange = (event) => {
     setImageUrl(event.target.value);

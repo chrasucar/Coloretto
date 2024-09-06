@@ -1,6 +1,6 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './user.schema';
 import {
   UserValidationException,
@@ -18,100 +18,20 @@ export class UsersService {
     return this.userModel.find().exec();
   }
 
-  // Obtener usuarios con paginación y búsqueda opcional.
+  // Obtener todos los nombres de usuarios.
 
-  async getUsersPaginationSearch(
-    page: number,
-    limit: number,
-    search?: string,
-  ): Promise<{ users: User[]; total: number }> {
-    const skip = (page - 1) * limit;
-    const filter: any = {};
-
-    if (search) {
-      filter.$or = [
-        { fullname: { $regex: search, $options: 'i' } },
-        { username: { $regex: search, $options: 'i' } },
-      ];
-    }
-
-    const usersPromise = this.userModel
-      .find(filter)
-      .skip(skip)
-      .limit(limit)
-      .collation({ locale: 'es', strength: 2 }) // Ignorar mayúsculas y minúsculas
-      .sort({ fullname: 1, username: 1 })
-      .exec();
-
-    const totalPromise = this.userModel.countDocuments(filter).exec();
-
-    const [users, total] = await Promise.all([usersPromise, totalPromise]);
-
-    return { users, total };
+  async getAllUsernames(): Promise<string[]> {
+    const users = await this.userModel.find().select('username').exec();
+    return users.map(user => user.username);
   }
 
-  // Obtener contactos del usuario.
+    // Verificar si hay usuarios en la base de datos.
 
-  async getUserContacts(username: string): Promise<string[]> {
-    const user = await this.userModel
-      .findOne({ username })
-      .populate('contacts')
-      .exec();
-
-    if (!user) {
-      throw new UserValidationException(
-        UserValidationError.UserNotFound,
-        HttpStatus.NOT_FOUND,
-      );
+    async areThereAnyUsers(): Promise<boolean> {
+      const count = await this.userModel.countDocuments().exec();
+  
+      return count > 0;
     }
-
-    return user.contacts;
-  }
-
-  // Actualizar tiempo de conexión del usuario.
-
-  async updateConnectionStartTime(userId: string, startTime: Date): Promise<void> {
-
-    try {
-      const user = await this.userModel.findById(userId);
-
-      if (!user) {
-        throw new UserValidationException(
-          UserValidationError.UserNotFound,
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-
-      user.connectionStartTime = startTime;
-
-      await user.save();
-    } 
-    
-    catch (error) {
-
-      throw new Error('Error actualizando el tiempo de conexión del usuario.');
-
-    }
-  }
-
-  // Actualizar última vez que se conectó el usuario.
-
-  async updateLastSeen(username: string, lastSeen: Date | null, isOnline: boolean): Promise<void> {
-    try {
-      const user = await this.userModel.findOne({ username }).exec();
-
-      if (!user) {
-        throw new Error('Usuario no encontrado.');
-      }
-
-      user.lastSeen = lastSeen;
-      user.isOnline = isOnline;
-      await user.save();
-
-    } catch (error) {
-      throw new Error('Error al actualizar lastSeen en updateLastSeen.');
-    }
-  }
 
   // Crear un usuario nuevo.
 
@@ -120,7 +40,6 @@ export class UsersService {
     username: string,
     email: string,
     password: string,
-    contacts: string[],
   ): Promise<User> {
     const newUser = new this.userModel({
       _id: new mongoose.Types.ObjectId(),
@@ -128,7 +47,6 @@ export class UsersService {
       username,
       email,
       password,
-      contacts,
     });
 
     return newUser.save();
@@ -146,43 +64,20 @@ export class UsersService {
     return this.userModel.findOne({ username }).exec();
   }
 
+  // Encontrar todos los usuarios por sus nombres de usuario.
+
+  async findUserIdsByUsernames(usernames: string[]): Promise<Types.ObjectId[]> {
+    const users = await this.userModel.find({ username: { $in: usernames } }).exec();
+    if (users.length !== usernames.length) {
+      throw new NotFoundException('One or more usernames not found');
+    }
+    return users.map(user => user._id);
+  }
+
   // Encontrar un usuario por su correo electrónico.
 
   async findUserByEmail(email: string): Promise<User | undefined> {
     return this.userModel.findOne({ email }).exec();
-  }
-
-  // Agregar un usuario (contacto).
-
-  async addContact(username: string, contacts: string): Promise<void> {
-    const user = await this.userModel.findOne({ username });
-
-    if (!user) {
-      throw new UserValidationException(
-        UserValidationError.UserNotFound,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    const contact = await this.userModel.findOne({ username: contacts });
-
-    if (!contact) {
-      throw new UserValidationException(
-        UserValidationError.UserNotFound,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    if (user.contacts.includes(contacts)) {
-      throw new UserValidationException(
-        UserValidationError.ContactExit,
-        HttpStatus.CONFLICT,
-      );
-    }
-
-    user.contacts.push(contacts);
-
-    await user.save();
   }
 
   // Actualizar email.
@@ -292,12 +187,49 @@ export class UsersService {
     await user.save();
   }
 
-  // Verificar si hay usuarios en la base de datos.
+  // Actualizar tiempo de conexión del usuario.
 
-  async areThereAnyUsers(): Promise<boolean> {
-    const count = await this.userModel.countDocuments().exec();
+  async updateConnectionStartTime(userId: string, startTime: Date): Promise<void> {
 
-    return count > 0;
+    try {
+      const user = await this.userModel.findById(userId);
+
+      if (!user) {
+        throw new UserValidationException(
+          UserValidationError.UserNotFound,
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      user.connectionStartTime = startTime;
+
+      await user.save();
+    } 
+    
+    catch (error) {
+
+      throw new Error('Error actualizando el tiempo de conexión del usuario.');
+
+    }
+  }
+
+  // Actualizar última vez que se conectó el usuario.
+
+  async updateLastSeen(username: string, lastSeen: Date | null, isOnline: boolean): Promise<void> {
+    try {
+      const user = await this.userModel.findOne({ username }).exec();
+
+      if (!user) {
+        throw new Error('Usuario no encontrado.');
+      }
+
+      user.lastSeen = lastSeen;
+      user.isOnline = isOnline;
+      await user.save();
+
+    } catch (error) {
+      throw new Error('Error al actualizar lastSeen en updateLastSeen.');
+    }
   }
 
   // Eliminar un usuario por su nombre de usuario.
@@ -311,31 +243,5 @@ export class UsersService {
         HttpStatus.NOT_FOUND,
       );
     }
-  }
-
-  // Eliminar un usuario (contacto).
-
-  async deleteContact(username: string, contact: string): Promise<void> {
-    const user = await this.userModel.findOne({ username });
-
-    if (!user) {
-      throw new UserValidationException(
-        UserValidationError.UserNotFound,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    const contactIndex = user.contacts.indexOf(contact);
-
-    if (contactIndex === -1) {
-      throw new UserValidationException(
-        UserValidationError.UserNotFound,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    user.contacts.splice(contactIndex, 1);
-
-    await user.save();
   }
 }

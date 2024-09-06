@@ -10,6 +10,7 @@ import {
   Query,
   UploadedFile,
   UseInterceptors,
+  HttpException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
@@ -29,31 +30,16 @@ export class UsersController {
     private readonly authService: AuthService,
   ) {}
 
-  // Paginación y búsqueda.
+  // Obtener todos los usuarios por nombre de usuario.
 
-  // Obtener todos los usuarios.
-
-  @Get()
-  async getUsers(
-    @Query('page') page: number,
-    @Query('limit') limit: number,
-    @Query('search') search?: string,
-  ): Promise<{ users: User[]; total: number }> {
-    const { users, total } = await this.usersService.getUsersPaginationSearch(
-      page,
-      limit,
-      search,
-    );
-
-    return { users, total };
-  }
-
-  // Obtener los contactos del usuario actual.
-
-  @Get('/profile/:username/contacts')
-  async getUserContacts(@Param('username') username: string) {
-    const contacts = await this.usersService.getUserContacts(username);
-    return { contacts };
+  @Get('/usernames')
+  async getAllUsernames(): Promise<string[]> {
+    try {
+      const usernames = await this.usersService.getAllUsernames();
+      return usernames;
+    } catch (error) {
+      throw new Error('Error al obtener los nombres de usuario.');
+    }
   }
 
   // Visualizar el perfil (protegido: una vez autenticado).
@@ -80,7 +66,6 @@ export class UsersController {
     @Body('username') username: string,
     @Body('email') email: string,
     @Body('password') password: string,
-    @Body('contacts') contacts: string[],
   ) {
     // Validar la longitud de la contraseña.
 
@@ -119,24 +104,11 @@ export class UsersController {
       username,
       email,
       password,
-      contacts,
     );
 
     const token = await this.authService.generateToken(user._id);
 
     return { message: 'Se ha registrado correctamente.', token };
-  }
-
-  // Agregar un contacto.
-
-  @Post('/:username/add-contact')
-  async addContact(
-    @Param('username') username: string,
-    @Body('contact') contact: string,
-  ) {
-    await this.usersService.addContact(username, contact);
-
-    return { message: 'Usuario agregado correctamente.' };
   }
 
   // Actualizar email.
@@ -258,13 +230,13 @@ export class UsersController {
     let filePath = '';
 
     if (file) {
-      // Si se proporciona un archivo, se construye la ruta de la imagen a partir del archivo subido.
       filePath = `/uploads/profile-pictures/${file.filename}`;
+
     } else if (imageUrl) {
-      // Si se proporciona una URL de imagen, se usa directamente como la ruta de la imagen.
+
       filePath = imageUrl;
+
     } else {
-      // En caso de que no se proporcione ni un archivo ni una URL de imagen, se produce un error.
       throw new Error(
         'Debe proporcionar un archivo o una URL de imagen válida.',
       );
@@ -282,18 +254,6 @@ export class UsersController {
   @Delete('/:username')
   async deleteUser(@Param('username') username: string) {
     await this.usersService.deleteUser(username);
-
-    return { message: 'Usuario eliminado correctamente.' };
-  }
-
-  // Eliminar un contacto.
-
-  @Delete('/:username/delete-contact')
-  async removeContact(
-    @Param('username') username: string,
-    @Body('contact') contact: string,
-  ) {
-    await this.usersService.deleteContact(username, contact);
 
     return { message: 'Usuario eliminado correctamente.' };
   }

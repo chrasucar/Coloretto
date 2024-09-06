@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import '../../css/PasswordFormPage.css';
 
 function PasswordFormPage() {
+
   const { handleUpdatePassword } = useAuth();
   const [newPassword, setNewPassword] = useState('');
   const [password, setPassword] = useState('');
@@ -11,6 +12,8 @@ function PasswordFormPage() {
   const [errorMessage, setErrorMessage] = useState(null);
   const { username } = useParams();
   const navigate = useNavigate();
+
+  // Cambiar de contraseña correctamente.
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +30,8 @@ function PasswordFormPage() {
       setErrorMessage(error.message);
     }
   };
+
+  // Cancelar ventana.
 
   const handleCancel = () => {
     navigate(`/users/profile/${username}`);

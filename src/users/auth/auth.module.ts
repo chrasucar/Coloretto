@@ -4,8 +4,6 @@ import { UsersModule } from '../users.module';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 
-// Evitar dependencias cíclicas y registrar una contraseña secreta.
-
 @Module({
   imports: [forwardRef(() => UsersModule),
             JwtModule.register({

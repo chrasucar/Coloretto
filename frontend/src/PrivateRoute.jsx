@@ -3,6 +3,7 @@ import { useAuth } from './context/auth.context';
 import { Navigate, Outlet } from 'react-router-dom';
 
 function PrivateRoute() {
+
   const { loading, authenticated } = useAuth();
   const [showLoading, setShowLoading] = useState(true);
 
@@ -15,18 +16,18 @@ function PrivateRoute() {
   }, []);
 
   if (loading || showLoading) {
+
     return <h1>Cargando...</h1>;
+
   }
 
   if (!authenticated) {
-    return <Navigate to="/auth/login" replace state={{ from: window.location }} />;
+
+    return <Navigate to="/" replace />;
+    
   }
 
-  return (
-    <div>
-      <Outlet />
-    </div>
-  );
+  return <Outlet />;
 }
 
 export default PrivateRoute;

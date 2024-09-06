@@ -1,10 +1,11 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users.service';
 import {
   UserValidationException,
   UserValidationError,
 } from '../users-exception';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class AuthService {
@@ -116,6 +117,19 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
+  // Obtener id del token.
+
+  async getUserIdFromSocket(client: Socket): Promise<string> {
+    try {
+      const token = client.handshake.headers.authorization.replace('Bearer ', '');
+      const { sub: userId } = this.jwtService.verify(token);
+      return userId;
+    } catch (error) {
+      console.error('Error obtaining user ID from socket:', error.message);
+      throw new UnauthorizedException('Invalid or missing authentication token');
+    }
+  }
+
   // Verificar token.
 
   async verifyToken(token: string) {
@@ -165,6 +179,8 @@ export class AuthService {
       );
     }
   }
+
+  // Eliminar token.
 
   async logout(username: string): Promise<void> {
     try {

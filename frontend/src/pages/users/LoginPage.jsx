@@ -3,20 +3,18 @@ import { useForm } from 'react-hook-form';
 import { useAuth } from '../../context/auth.context';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import ModalSuccessLogin from './ModalSuccessLogin';
+import ModalSuccessLogin from '../../components/ModalSuccessLogin';
 import '../../css/LoginPage.css';
 
 function LoginPage() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit, formState: { errors } } = useForm();
   const { loading, user, signIn, error: loginError, authenticated } = useAuth();
   const navigate = useNavigate();
   const [localError, setLocalError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [isLoginSuccessful, setIsLoginSuccessful] = useState(false);
+
+  // Iniciar sesión correctamente.
 
   const onSubmit = handleSubmit(async (values) => {
     try {

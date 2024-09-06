@@ -17,8 +17,6 @@ export enum UserValidationError {
   PasswordSame = 'La nueva contraseña introducida no puede ser igual a la contraseña actual.',
   PasswordEmpty = 'La nueva contraseña no puede estar vacía.',
   PasswordNotEqual = 'La nueva contraseña introducida no es igual a la verificación de la nueva contraseña.',
-
-  ContactExit = 'El usuario ya está agregado.',
   
   CredentialInvalid = 'Credenciales incorrectas. Por favor, inténtelo de nuevo.',
   

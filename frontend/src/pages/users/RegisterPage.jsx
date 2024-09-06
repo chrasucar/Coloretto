@@ -4,7 +4,7 @@ import { useAuth } from '../../context/auth.context';
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../../css/RegisterPage.css';
-import ModalSuccessRegister from './ModalSuccessRegister';
+import ModalSuccessRegister from '../../components/ModalSuccessRegister';
 
 function RegisterPage() {
   const {
@@ -16,6 +16,8 @@ function RegisterPage() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [localError, setLocalError] = useState(null);
+
+  // Registrarse correctamente.
 
   const handleRegisterSuccess = () => {
     setLocalError(null);

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../css/ModalSuccess.css';
+import '../css/ModalSuccess.css'
 
 function ModalSuccessLogin() {
   return (

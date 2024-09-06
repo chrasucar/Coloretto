@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type UserDocument = User & Document;
 
@@ -8,67 +8,38 @@ export type UserDocument = User & Document;
 @Schema()
 export class User {
 
-  // Id para cada usuario.
-
   @Prop()
   _id?: string;
-
-  // Nombre completo del usuario.
 
   @Prop({ required: true, maxlength: 100 })
   fullname: string;
 
-  // Nombre de usuario único.
-
-  @Prop({ required: true, unique: true, maxlength: 50 })
+  @Prop({ required: true, unique: true, maxlength: 25 })
   username: string;
-
-  // Correo electrónico único.
 
   @Prop({ required: true, unique: true, match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/})
   email: string;
 
-  // Contraseña del usuario.
-
   @Prop({ required: true})
   password: string;
-
-  // Foto de perfil del usuario.
 
   @Prop({ default: '' })
   profilePicture: string;
 
-  // Lista de contactos del usuario.
-
-  @Prop({ type: [String], default: [] })
-  contacts: string[];
-
-  // Número de partidas jugadas por el usuario.
-
   @Prop({ type: Number, default: 0 })
   gamesPlayed: number;
-
-  // Número de partidas ganadas por el usuario.
 
   @Prop({ type: Number, default: 0 })
   gamesWon: number;
 
-  // Número de partidas perdidas por el usuario.
-
   @Prop({ type: Number, default: 0 })
   gamesLost: number;
-
-  // Fecha y hora de la última vez que el usuario estuvo conectado.
 
   @Prop({ default: null })
   lastSeen: Date;
 
-  // Conectado o no.
-
   @Prop({ default: false })
   isOnline: boolean;
-
-  // Tiempo de comienzo al iniciar sesión.
   
   @Prop()
   connectionStartTime: Date;
@@ -77,13 +48,14 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-// Creación de índices para garantizar la unicidad de los valores de 'username' y 'email'
-
-// El índice en 'username' se crea de manera ascendente.
-
 UserSchema.index({ username: 1 }, { unique: true });
 
-// El índice en 'email' también se crea de manera ascendente y único.
-
 UserSchema.index({ email: 1 }, { unique: true });
+
+UserSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.__v;
+    return ret;
+  },
+});
 

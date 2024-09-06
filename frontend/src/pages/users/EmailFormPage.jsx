@@ -4,12 +4,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import '../../css/EmailFormPage.css';
 
 function EmailFormPage() {
+
   const { handleUpdateEmail } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const { username } = useParams();
   const navigate = useNavigate();
+
+  // Actualizar email correctamente.
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,6 +25,8 @@ function EmailFormPage() {
       setErrorMessage(error.message);
     }
   };
+
+  // Cancelar ventana.
 
   const handleCancel = () => {
     navigate(`/users/profile/${username}`);

@@ -2,9 +2,9 @@ import axios from './axios';
 
 // Usuarios: GET
 
-export const profileUser = (username) => axios.get(`/users/profile/${username}`);
+export const getAllUsernames = () => axios.get('/users/usernames');
 
-export const getContacts = (username) => axios.get(`/users/profile/${username}/contacts`);
+export const profileUser = (username) => axios.get(`/users/profile/${username}`);
 
 export const getConnectionTime = (username) => axios.get(`/auth/${username}/connection-time`);
 
@@ -32,6 +32,30 @@ export const updatePassword = (username, currentPassword, newPassword, verifyPas
 
 export const removeAccount = (username) => axios.delete(`/users/${username}`);
 
-// Juego: GET
+// Chat General - Mensajes: GET
 
-export const GameState = (gameId) => axios.get(`/users/game/state/${gameId}`);
+export const getAllMessages = () => axios.get('/messages');
+
+// Juegos: GET
+
+export const getAvailableGames = (page = 1) => axios.get(`/games?page=${page}`);
+
+export const getGameByName = (gameName) => axios.get(`/games/${gameName}`);
+
+export const getGameByUser = (owner) => axios.get(`/games/owner/${owner}`);
+
+// Juegos: POST
+
+export const createGame = async (gameName, maxPlayers, isAiControlled, ownerUsername, aiPlayersCount) => {
+    return axios.post('/games/create', {
+      gameName,
+      maxPlayers,
+      isAiControlled,
+      owner: ownerUsername,
+      aiPlayersCount,
+    });
+  };
+
+export const joinGame = (gameName, username) => axios.post('/games/join', { gameName, username });
+
+export const leaveGame = (gameName, username) => axios.post(`/games/leave`, { gameName, username });
