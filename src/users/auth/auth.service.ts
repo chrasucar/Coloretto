@@ -19,10 +19,7 @@ export class AuthService {
       const user = await this.usersService.findUserByUserName(username);
 
       if (!user) {
-        throw new UserValidationException(
-          UserValidationError.UserNotFound,
-          HttpStatus.UNAUTHORIZED,
-        );
+        return null;
       }
 
       if (user.isOnline) {
@@ -90,7 +87,7 @@ export class AuthService {
       if (password !== user.password) {
         throw new UserValidationException(
           UserValidationError.PasswordNotFound,
-          HttpStatus.UNAUTHORIZED,
+          HttpStatus.BAD_REQUEST,
         );
       }
 
@@ -125,8 +122,8 @@ export class AuthService {
       const { sub: userId } = this.jwtService.verify(token);
       return userId;
     } catch (error) {
-      console.error('Error obtaining user ID from socket:', error.message);
-      throw new UnauthorizedException('Invalid or missing authentication token');
+      console.error('Error obteniendo el ID del socket:', error.message);
+      throw new UnauthorizedException('Token de autenticación inválido.');
     }
   }
 
@@ -139,10 +136,7 @@ export class AuthService {
       const user = await this.usersService.findById(decoded.sub);
 
       if (!user) {
-        throw new UserValidationException(
-          UserValidationError.UserNotFound,
-          HttpStatus.UNAUTHORIZED,
-        );
+        return null;
       }
 
       return { _id: user._id, username: user.username, email: user.email };

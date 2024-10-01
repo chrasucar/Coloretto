@@ -33,7 +33,14 @@ export class AuthController {
 
     try {
 
+      if (!username) {
+
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'No se proporcionó un nombre de usuario válido.' });
+        
+      }
+
       if (username) {
+
         const connectionTime = await this.authService.getConnectionTime(username);
 
         return res.status(HttpStatus.OK).json({ connectionTime });
@@ -45,7 +52,9 @@ export class AuthController {
       }
 
     } catch (error) {
+
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Error al obtener el tiempo de conexión.' });
+      
     }
   }
 
@@ -82,14 +91,7 @@ export class AuthController {
   @Post('verify-token')
   async verifyToken(@Req() req: Request, @Res() res: Response) {
     const { token } = req.cookies;
-
-    if (!token) {
-      throw new UserValidationException(
-        UserValidationError.TokenInvalid,
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
+    
     try {
       const userData = await this.authService.verifyToken(token);
 

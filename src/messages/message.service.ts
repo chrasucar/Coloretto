@@ -15,8 +15,9 @@ export class MessagesService {
     sender: string,
     text: string,
     references: string[] = [],
+    gameName?: string,
   ): Promise<Message> {
-    const newMessage = new this.messageModel({ sender, text, references });
+    const newMessage = new this.messageModel({ sender, text, references, gameName });
     return newMessage.save();
   }
 
@@ -52,10 +53,17 @@ export class MessagesService {
 
   }
 
-    // Obtener todos los mensajes ordenados por tiempo.
+  // Obtener todos los mensajes ordenados por tiempo.
 
   async findAllMessages(): Promise<Message[]> {
-    return this.messageModel.find().sort({ timestamp: 1 }).exec();
+    return this.messageModel.find({ gameName: { $exists: false } })
+    .sort({ sentAt: 1 }).exec();
+  }
+
+  // Obtener todos los mensajes ordenados por tiempo de una partida.
+
+  async findAllMessagesGame(gameName: string): Promise<Message[]> {
+    return this.messageModel.find({ gameName }).sort({ sentAt: 1 }).exec();
   }
 
   // Obtener mensaje por id.
@@ -73,6 +81,15 @@ export class MessagesService {
       })
       .exec();
     }
+
+  // Obtener mensajes por partida.
+
+   async getMessagesForGame(gameName: string): Promise<Message[]> {
+    return this.messageModel
+      .find({ gameName })
+      .sort({ sentAt: 1 })
+      .exec();
+  }
 
   // Eliminar reacción de un mensaje.
 

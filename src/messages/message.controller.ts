@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { MessagesService } from './message.service';
+import { Message } from './message.schema';
 
 @Controller('messages')
 export class MessagesController {
@@ -7,8 +8,15 @@ export class MessagesController {
 
   // Obtener todos los mensajes.
 
-  @Get()
+  @Get('/general')
   async findAll() {
     return this.messagesService.findAllMessages();
+  }
+
+  // Obtener todos los mensajes de una partida.
+
+  @Get('/game')
+  async findAllGame(@Query('gameName') gameName: string): Promise<Message[]> {
+    return this.messagesService.findAllMessagesGame(gameName);
   }
 }

@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../../context/auth.context';
-import ReactModal from 'react-modal';
-import ProfilePictureFormWindow from './ProfilePictureFormWindow';
 import { useNavigate } from 'react-router-dom';
 import '../../css/ProfilePage.css';
 
@@ -10,22 +8,37 @@ function ProfilePage() {
     user,
     loading,
     error,
-    fetchUserProfile,
     authenticated,
     connectionTime,
     deleteUserAccount,
   } = useAuth();
-  const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate();
 
-  const openModal = () => setShowModal(true);
-  const closeModal = () => setShowModal(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!authenticated && !loading) {
       navigate('/auth/login');
     }
   }, [authenticated, loading, navigate]);
+
+  const handleDeleteAccount = async () => {
+
+    const isConfirmed = window.confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es irreversible.');
+
+    if (!isConfirmed) return;
+  
+    try {
+
+      await deleteUserAccount(user.profile.username);
+
+      navigate('/');
+
+    } catch (error) {
+
+      alert('Error al eliminar la cuenta. Inténtalo de nuevo más tarde.');
+
+    }
+  };
 
   return (
     <div className="profile-container">
@@ -41,11 +54,10 @@ function ProfilePage() {
               <p>Nombre y Apellidos: {user.profile.fullname}</p>
               <p>Nombre de Usuario: {user.profile.username}</p>
               <p>Correo Electrónico: {user.profile.email}</p>
-              <p>Contraseña: {user.profile.password}</p>
               <p>Foto:</p>
               {user.profile.profilePicture && (
                 <img
-                  src={`http://localhost:3000${user.profile.profilePicture}`}
+                  src={`http://localhost:3000/${user.profile.profilePicture}`}
                   alt="Foto"
                   style={{
                     width: '150px',
@@ -56,28 +68,15 @@ function ProfilePage() {
                   }}
                 />
               )}
-              <button onClick={openModal}>Actualizar foto de perfil</button>
-              <ReactModal
-                isOpen={showModal}
-                onRequestClose={closeModal}
-                contentLabel="Actualizar Foto de Perfil"
-              >
-                <ProfilePictureFormWindow
-                  onClose={closeModal}
-                  username={user.profile.username}
-                  onProfilePictureUpdate={fetchUserProfile}
-                />
-              </ReactModal>
               <button onClick={() => navigate(`/users/profile/${user.profile.username}/change-email`)}>Actualizar correo electrónico</button>
               <button onClick={() => navigate(`/users/profile/${user.profile.username}/change-password`)}>Actualizar contraseña</button>
+              <button onClick={() => navigate(`/users/profile/${user.profile.username}/update-profile-picture`)}>Actualizar foto de perfil</button>
             
               <p>Partidas jugadas: {user.profile.gamesPlayed}</p>
               <p>Partidas ganadas: {user.profile.gamesWon}</p>
               <p>Partidas perdidas: {user.profile.gamesLost}</p>
-              <p>Tiempo de Conexión: {connectionTime || 'Cargando...'}</p>
-              <button onClick={() => deleteUserAccount(user.profile.username).then(() => navigate('/'))}>
-                Eliminar cuenta
-              </button>
+              <p>{connectionTime !== null ? connectionTime : 'No disponible'}</p>
+              <button onClick={handleDeleteAccount}>Eliminar cuenta</button>
             </div>
           )}
         </>

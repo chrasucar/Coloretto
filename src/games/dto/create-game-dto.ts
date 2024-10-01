@@ -1,11 +1,14 @@
 import { IsString, IsNumber, IsOptional, IsBoolean, Min, Max } from 'class-validator';
 
 export class CreateGameDto {
+
+  // Gestión de partidas.
+
   @IsString()
   gameName: string;
 
   @IsNumber()
-  @Min(1)
+  @Min(2)
   @Max(5)
   maxPlayers: number;
 
@@ -21,4 +24,8 @@ export class CreateGameDto {
   @IsOptional()
   @IsNumber()
   aiPlayersCount?: number;
+
+  @IsString()
+  difficultyLevel: 'Básico' | 'Experto';
+  
 }

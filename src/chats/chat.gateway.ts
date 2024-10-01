@@ -8,7 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Message } from 'src/messages/message.schema';
 import { MessagesService } from 'src/messages/message.service';
 
 @WebSocketGateway({
@@ -20,10 +20,8 @@ export class ChatGateway
   @WebSocketServer()
   server: Server;
 
-  private logger = new Logger('ChatGateway');
-  private connectedUsers: Map<string, { name: string; isConnected: boolean }> =
-    new Map();
-  private typingUsers: Set<string> = new Set();
+  private connectedUsers: Map<string, Map<string, { name: string; isConnected: boolean }>> = new Map();
+  private typingUsers: Map<string, Set<string>> = new Map();
 
   constructor(private messagesService: MessagesService) {}
 
@@ -35,43 +33,44 @@ export class ChatGateway
 
   handleConnection(client: Socket) {
     const userName = client.handshake.query.userName as string;
-    if (userName) {
-      const existingUser = Array.from(this.connectedUsers.values()).find(
-        (user) => user.name === userName,
-      );
-      if (existingUser) {
-        existingUser.isConnected = true;
-      } else {
-        this.connectedUsers.set(client.id, {
-          name: userName,
-          isConnected: true,
-        });
-      }
+    const gameName = client.handshake.query.gameName as string;
+  
+    if (userName && gameName) {
+
+      const userMap = this.connectedUsers.get(gameName) || new Map();
+      userMap.set(client.id, { name: userName, isConnected: true });
+      this.connectedUsers.set(gameName, userMap);
+  
+      client.join(gameName);
+  
       setTimeout(() => {
-        this.updateConnectedUsers();
+        this.updateConnectedUsers(gameName);
       }, 3000);
-      this.logger.log(`Cliente conectado: ${client.id}, Usuario: ${userName}`);
     }
-    this.loadMessages(client);
+    this.loadMessages(client, gameName);
   }
 
   // Desconexión del WebSocket
 
   handleDisconnect(client: Socket) {
-    const user = Array.from(this.connectedUsers.values()).find(
-      (user) => user.name === client.handshake.query.userName,
-    );
-    if (user) {
-      user.isConnected = false;
-      setTimeout(() => {
-        this.connectedUsers = new Map(
-          Array.from(this.connectedUsers.entries()).map(([id, u]) =>
-            id === client.id ? [id, user] : [id, u],
-          ),
-        );
-        this.updateConnectedUsers();
-      }, 3000);
-      this.logger.log(`Cliente desconectado: ${client.id}, Usuario: ${user.name}`);
+    const gameName = client.handshake.query.gameName as string;
+    
+    const userMap = this.connectedUsers.get(gameName);
+    if (userMap) {
+      const user = userMap.get(client.id);
+      if (user) {
+        user.isConnected = false;
+        userMap.set(client.id, user);
+        setTimeout(() => {
+          userMap.delete(client.id);
+          if (userMap.size === 0) {
+            this.connectedUsers.delete(gameName);
+          } else {
+            this.connectedUsers.set(gameName, userMap);
+          }
+          this.updateConnectedUsers(gameName);
+        }, 3000);
+      }
     }
   }
 
@@ -79,16 +78,22 @@ export class ChatGateway
 
   @SubscribeMessage('message')
   async handleMessage(
-    @MessageBody() message: { sender: string; text: string },
+    @MessageBody() message: { sender: string; text: string, gameName?: string },
   ) {
-    this.logger.log(`Mensaje recibido: ${message.sender} - ${message.text}`);
 
     const references = this.extractReferences(message.text);
     const newMessage = await this.messagesService.createMessage(
       message.sender,
       message.text,
       references,
+      message.gameName,
     );
+
+    if (message.gameName) {
+      this.server.to(message.gameName).emit('message', newMessage);
+    } else {
+      this.server.emit('general', newMessage);
+    }
 
     return newMessage;
   }
@@ -96,36 +101,32 @@ export class ChatGateway
   // Reacciones recibidas
 
   @SubscribeMessage('reaction')
-  async handleReaction(
-    @MessageBody() reaction: { messageId: string; emoji: string; user: string },
-  ) {
-    this.logger.log(
-      `Reacción recibia del usuario: ${reaction.user} con el emoji ${reaction.emoji} al mensaje ${reaction.messageId}`,
+  async handleReaction(@MessageBody() reaction: { messageId: string; emoji: string; user: string, gameName?: string }) {
+
+  try {
+    const updatedMessage = await this.messagesService.addReaction(
+      reaction.messageId,
+      reaction.emoji,
+      reaction.user,
     );
-    try {
-      const updatedMessage = await this.messagesService.addReaction(
-        reaction.messageId,
-        reaction.emoji,
-        reaction.user,
-      );
+    if (reaction.gameName) {
+      this.server.to(reaction.gameName).emit('reaction-updated', updatedMessage);
+    } else {
       this.server.emit('reaction-updated', updatedMessage);
-      return updatedMessage;
-    } catch (error) {
-      this.logger.error('Error añadiendo la reacción', error.stack);
     }
+    return updatedMessage;
+  } catch (error) {
+    return null;
   }
+}
 
   // Reacciones eliminadas
 
   @SubscribeMessage('remove-reaction')
-  async handleRemoveReaction(
-    client: Socket,
-    payload: { messageId: string; emoji: string; user: string },
-  ) {
+  async handleRemoveReaction(client: Socket, payload: { messageId: string; emoji: string; user: string }) {
+
     const { messageId, emoji, user } = payload;
-    this.logger.log(
-      `Petición para eliminar la reacción del usuario ${user}, eliminando ${emoji} del mensaje ${messageId}`,
-    );
+
     try {
       const updatedMessage = await this.messagesService.removeReaction(
         messageId,
@@ -134,43 +135,83 @@ export class ChatGateway
       );
       if (updatedMessage) {
         this.server.emit('reaction-removed', updatedMessage);
-        this.logger.log(
-          `Reacción eliminada del usuario: ${user}, eliminado ${emoji} del mensaje ${messageId}`,
-        );
       }
     } catch (error) {
-      this.logger.error('Error eliminando la reacción', error.stack);
+      return null;
     }
   }
 
-  // Usuario escribiendo en el chat.
+  // Usuario escribiendo en el chat general.
 
   @SubscribeMessage('typing')
   handleTyping(client: Socket, payload: { user: string }) {
-    this.typingUsers.add(payload.user);
-    this.server.emit('typing', Array.from(this.typingUsers));
+    const gameName = client.handshake.query.gameName as string;
+    const usersInTyping = this.typingUsers.get(gameName) || new Set();
+    
+    usersInTyping.add(payload.user);
+    this.typingUsers.set(gameName, usersInTyping);
+    this.server.to(gameName).emit('typing', Array.from(usersInTyping));
   }
 
-  // Usuario para de escribir en el chat.
+  // Usuario para de escribir en el chat general.
 
   @SubscribeMessage('stop-typing')
   handleStopTyping(client: Socket, payload: { user: string }) {
-    this.typingUsers.delete(payload.user);
-    this.server.emit('typing', Array.from(this.typingUsers));
+    const gameName = client.handshake.query.gameName as string;
+    const usersInTyping = this.typingUsers.get(gameName);
+    
+    if (usersInTyping) {
+      usersInTyping.delete(payload.user);
+      this.typingUsers.set(gameName, usersInTyping);
+      this.server.to(gameName).emit('typing', Array.from(usersInTyping));
+    }
+  }
+
+  // Usuario escribiendo en el chat de una partida.
+
+  @SubscribeMessage('typingGame')
+  handleTypingGame(client: Socket, payload: { user: string, gameName: string }) {
+    const usersInTyping = this.typingUsers.get(payload.gameName) || new Set();
+    
+    usersInTyping.add(payload.user);
+    this.typingUsers.set(payload.gameName, usersInTyping);
+    this.server.to(payload.gameName).emit('typingGame', Array.from(usersInTyping));
+  }
+
+  // Usuario para de escribir en el chat de una partida.
+
+  @SubscribeMessage('stop-typingGame')
+  handleStopTypingGame(client: Socket, payload: { user: string, gameName: string }) {
+    const usersInTyping = this.typingUsers.get(payload.gameName);
+    
+    if (usersInTyping) {
+      usersInTyping.delete(payload.user);
+      this.typingUsers.set(payload.gameName, usersInTyping);
+      this.server.to(payload.gameName).emit('typingGame', Array.from(usersInTyping));
+    }
   }
 
   // Método privado: Cargar mensajes cuando se entra al chat.
 
-  private async loadMessages(client: Socket) {
-    const messages = await this.messagesService.findAllMessages();
+  private async loadMessages(client: Socket, gameName?: string) {
+    let messages: Message[] = [];
+
+    if (gameName) {
+      messages = await this.messagesService.findAllMessagesGame(gameName);
+    } else {
+      messages = await this.messagesService.findAllMessages();
+    }
     client.emit('messages', messages);
   }
 
   // Método privado: Actualizar los usuarios conectados.
 
-  private updateConnectedUsers() {
-    const users = Array.from(this.connectedUsers.values());
-    this.server.emit('users-updated', users);
+  private updateConnectedUsers(gameName: string) {
+    const userMap = this.connectedUsers.get(gameName);
+    if (userMap) {
+      const users = Array.from(userMap.values());
+      this.server.to(gameName).emit('users-updated', users);
+    }
   }
 
   // Método privado: Definir la referencia que se hace a un usuario.

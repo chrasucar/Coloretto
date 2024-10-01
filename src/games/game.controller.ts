@@ -9,10 +9,12 @@ import {
   DefaultValuePipe,
   ParseIntPipe,
   NotFoundException,
-  HttpCode,
+  Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { GameService } from './game.service';
-import { Game } from './game.schema';
+import { Game, GameDocument } from './game.schema';
 import { CreateGameDto } from './dto/create-game-dto';
 
 @Controller('games')
@@ -40,9 +42,7 @@ export class GameController {
 
   @Get('owner/:owner')
   async getUserGame(@Param('owner') owner: string): Promise<Game | null> {
-    console.log('Comprobando si el usuario tiene una partida creada:', owner);
     const game = await this.gameService.findGameByUser(owner);
-    console.log('Partida encontrada:', game); 
     if (!game) {
       return null;
     }
@@ -89,24 +89,121 @@ export class GameController {
 
   // Abandonar una partida.
 
-  @Post('leave')
-  @HttpCode(200)
-  async leaveGame(@Body() body: { gameName: string; username: string }) {
-    const { gameName, username } = body;
-    const game = await this.gameService.findGameByName(gameName);
+  @Delete('leave/:gameName/:username')
+  async leaveGame(@Param('gameName') gameName: string, @Param('username') username: string) {
+  const game = await this.gameService.findGameByName(gameName);
 
-    console.log('Partida encontrada:', game);
+  if (!game) {
+    throw new NotFoundException('Partida no encontrada.');
+  }
 
-    if (!game) {
-      throw new NotFoundException('Partida no encontrada.');
+  if (!game.players.includes(username)) {
+    throw new BadRequestException('El jugador no está en la partida.');
+  }
+
+  await this.gameService.leaveGame(gameName, username);
+
+  return { message: 'El jugador ha abandonado la partida.' };
+}
+
+
+  // ------------------------------------------ Juego ------------------------------
+
+  // Tiempo restante para preparar la partida automáticamente.
+
+  @Get(':gameName/preparation-time')
+  async getPreparationTimeRemaining(@Param('gameName') gameName: string): Promise<{ timeRemaining: number }> {
+  try {
+    const timeRemainingMillis = await this.gameService.getPreparationTimeRemaining(gameName);
+    return { timeRemaining: timeRemainingMillis };
+  } catch (error) {
+    if (error instanceof NotFoundException) {
+      throw new NotFoundException('Juego no encontrado.');
+    }
+    return null;
+  }
+}
+
+  // Preparar partida.
+
+  @Post(':gameName/prepare')
+  async prepareGame(@Param('gameName') gameName: string, @Body('level') level: string): Promise<Game> {
+    try {
+      if (level !== 'Básico' && level !== 'Experto') {
+        throw new BadRequestException('Nivel de dificultad inválido.');
+      }
+      const game = await this.gameService.prepareGame(gameName, level);
+      return game;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('Juego no encontrado.');
+      }
+      return null;
+    }
+  }
+
+  // Seleccionar dificultad.
+
+  @Post(':gameName/select-difficulty')
+  async selectDifficultyAndPrepareGame(
+    @Param('gameName') gameName: string,
+    @Body('level') level: 'Básico' | 'Experto'
+  ): Promise<Game> {
+    try {
+      const game = await this.gameService.selectDifficultyAndPrepareGame(gameName, level);
+      return game;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  // Revelar carta.
+
+  @Post(':gameName/reveal-card')
+  async revealCard(@Param('gameName') gameName: string, @Body('playerName') playerName: string, 
+  @Body('columnIndex') columnIndex: number): Promise<GameDocument> {
+    try {
+      return await this.gameService.revealCard(gameName, playerName, columnIndex);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else if (error instanceof BadRequestException) {
+        throw new BadRequestException(error.message);
+      }
+    }
+  }
+
+  // Siguiente turno.
+  
+  @Post(':gameName/next-turn')
+  async nextTurn(@Param('gameName') gameName: string): Promise<void> {
+    await this.gameService.nextTurn(gameName);
+  }
+
+  // Tomar una columna.
+
+  @Post(':gameName/take-column')
+  async takeColumn(@Param('gameName') gameName: string, @Body('playerName') playerName: string, @Body('columnIndex') columnIndex: number
+  ): Promise<GameDocument> {
+    try {
+       return await this.gameService.takeColumn(gameName, playerName, columnIndex);
+      } catch (error) {
+        if (error instanceof NotFoundException) {
+          throw new NotFoundException(error.message);
+        } else if (error instanceof BadRequestException) {
+          throw new BadRequestException(error.message);
+        }
+      }
     }
 
-    if (!game.players.includes(username)) {
-      throw new BadRequestException('El jugador no está en la partida.');
+  // Finalizar y calcular puntuaciones, determinando el ganador o ganadores.
+
+  @Post(':gameName/finalize-scores')
+  async finalizeScores(@Param('gameName') gameName: string): Promise<GameDocument> {
+    try {
+      return await this.gameService.finalizeAndCalculateScores(gameName);
+    } catch (error) {
+      return null;
     }
-
-    await this.gameService.leaveGame(gameName, username);
-
-    return { message: 'El jugador ha abandonado la partida.' };
   }
 }

@@ -1,22 +1,28 @@
 import React, { useState } from 'react';
-import axios from '../../api/axios';
 import '../../css/ProfilePictureFormWindow.css';
+import { useAuth } from '../../context/auth.context';
+import { useNavigate, useParams } from 'react-router-dom';
 
-function ProfilePictureFormWindow({
-  onClose,
-  username,
-  onProfilePictureUpdate,
-}) {
+function ProfilePictureFormWindow() {
+
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState(null);
+  const { handleUpdateProfilePicture } = useAuth();
+  const { username } = useParams();
+  const navigate = useNavigate();
 
   // Cambiar foto de perfil por archivo local.
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
-    setFile(selectedFile);
-    setImageUrl('');
+    if (selectedFile && selectedFile.type.startsWith('image/')) {
+      setFile(selectedFile);
+      setImageUrl('');
+    } else {
+      setError('Por favor, selecciona un archivo de imagen válido.');
+      setFile(null);
+    }
   };
 
   // Cambiar foto de perfil por URL (no se ha desplegado aún, servirá cuando se despliegue).
@@ -24,70 +30,63 @@ function ProfilePictureFormWindow({
   const handleUrlChange = (event) => {
     setImageUrl(event.target.value);
     setFile(null);
+    setError(null);
+  };
+
+  const handleClose = () => {
+    navigate(`/users/profile/${username}`);
   };
 
   const handleSubmit = async () => {
+
     try {
-      let formData = new FormData();
 
-      if (file) {
-        formData.append('file', file);
-      } else if (imageUrl && !file) {
-        formData.append('imageUrl', imageUrl);
-      } else {
-        throw new Error(
-          'Debe proporcionar una imagen o una URL de imagen válida.',
-        );
-      }
+        if (!file && !imageUrl) {
 
-      const response = await axios.put(
-        `/users/${username}/update-profile-picture`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      );
+            throw new Error('Debe proporcionar una imagen o una URL de imagen válida.');
 
-      onProfilePictureUpdate(response.data.filePath);
-      onClose();
+        }
+
+        await handleUpdateProfilePicture(username, file, imageUrl);
+
+        navigate(`/users/profile/${username}`);
+
     } catch (error) {
-      console.error('Error al actualizar la foto de perfil:', error);
-      setError('Error al actualizar la foto de perfil.');
-    }
-  };
 
-  return (
-    <div className="modal">
+        setError('Error al actualizar la foto de perfil.');
+        
+    }
+};
+
+return (
+  <div className="modal">
       <div className="modal-content">
-        <h2>Actualizar Foto de Perfil</h2>
-        {error && <p>{error}</p>}
-        <div>
-          <label htmlFor="urlInput">Introduce la URL de la imagen:</label>
-          <input
-            type="text"
-            id="urlInput"
-            value={imageUrl}
-            onChange={handleUrlChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="fileInput">
-            Si lo prefieres, súbelo desde tu PC:
-          </label>
-          <input
-            type="file"
-            id="fileInput"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-        </div>
-        <button onClick={handleSubmit}>Actualizar</button>
-        <button onClick={onClose}>Cancelar</button>
+          <h2>Actualizar Foto de Perfil</h2>
+          {error && <p>{error}</p>}
+          <div>
+              <label htmlFor="urlInput">Introduce la URL de la imagen:</label>
+              <input
+                  type="text"
+                  id="urlInput"
+                  value={imageUrl}
+                  onChange={handleUrlChange}
+                  disabled={file !== null}
+              />
+          </div>
+          <div>
+              <label htmlFor="fileInput">Si lo prefieres, súbelo desde tu PC:</label>
+              <input
+                  type="file"
+                  id="fileInput"
+                  accept="image/*"
+                  onChange={handleFileChange}
+              />
+          </div>
+          <button onClick={handleSubmit}>Actualizar</button>
+          <button onClick={handleClose}>Cancelar</button>
       </div>
-    </div>
-  );
+  </div>
+);
 }
 
 export default ProfilePictureFormWindow;

@@ -7,6 +7,9 @@ export type MessageDocument = Message & Document;
 @Schema()
 export class Message {
 
+  @Prop({ type: String })
+  gameName: string;
+
   @Prop({ type: String, default: () => uuidv4(), unique: true })
   messageId: string;
 

@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
-const ReactionPicker = ({ onSelect }) => {
-
+const ReactionPicker = forwardRef(({ onSelect }, ref) => {
   const emojis = ['😊', '😂', '❤️', '😢', '😡'];
 
   return (
-    <div className="reaction-picker">
+    <div ref={ref} className="reaction-picker">
       {emojis.map((emoji) => (
         <button
           key={emoji}
@@ -17,6 +16,6 @@ const ReactionPicker = ({ onSelect }) => {
       ))}
     </div>
   );
-};
+});
 
 export default ReactionPicker;

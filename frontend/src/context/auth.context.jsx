@@ -12,6 +12,7 @@ import {
   updatePassword,
   getConnectionTime,
   getAllMessages,
+  getAllMessagesGame,
 } from '../api/auth';
 import Cookies from 'js-cookie';
 import { useParams } from 'react-router-dom';
@@ -28,7 +29,7 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children, navigate }) => {
+export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
@@ -38,6 +39,7 @@ export const AuthProvider = ({ children, navigate }) => {
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
   const { username: paramUsername } = useParams();
+  const { gameName } = useParams();
 
   // Registro.
 
@@ -105,14 +107,10 @@ export const AuthProvider = ({ children, navigate }) => {
         const profileData = res.data;
         if (profileData) {
           setUser((prevUser) => ({ ...prevUser, profile: res.data }));
-        } else {
-          console.error('No se ha encontrado al usuario.');
         }
-      } else {
-        console.error('Error al obtener el perfil de usuario.');
       }
     } catch (error) {
-      console.error('Error al obtener el perfil de usuario.', error);
+      return null;
     }
   };
 
@@ -123,10 +121,7 @@ export const AuthProvider = ({ children, navigate }) => {
       const time = await getConnectionTime(username);
       setConnectionTime(time.data.connectionTime);
     } catch (error) {
-      console.error(
-        'Error al obtener el tiempo de conexión del usuario:',
-        error,
-      );
+      return null;
     }
   };
 
@@ -141,24 +136,50 @@ export const AuthProvider = ({ children, navigate }) => {
   // Actualizar foto de perfil del usuario.
 
   const handleUpdateProfilePicture = async (username, file, imageUrl) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('imageUrl', imageUrl);
 
-    try {
-      const res = await updateProfilePicture(username, formData);
-      const filePath = res.data.filePath;
-      setUser((prevUser) => ({
-        ...prevUser,
-        profile: {
-          ...prevUser.profile,
-          profilePicture: filePath,
-        },
-      }));
-    } catch (error) {
-      console.error('Error actualizando la foto de perfil:', error);
-    }
-  };
+     const formData = new FormData();
+
+     if (file) {
+
+         formData.append('file', file);
+
+     }
+ 
+     if (imageUrl) {
+
+         formData.append('imageUrl', imageUrl);
+
+     }
+
+     formData.append('username', username);
+ 
+     try {
+
+         const res = await updateProfilePicture(username, formData);
+         
+         if (res && res.data) {
+
+             const filePath = res.data.file || '';
+
+             setUser(prevUser => ({
+                 ...prevUser,
+                 profile: {
+                     ...prevUser.profile,
+                     profilePicture: filePath,
+                 },
+             }));
+
+         } else {
+
+             console.error('No se recibió una respuesta válida del servidor.');
+
+         }
+
+     } catch (error) {
+
+        setError('Ocurrió un error al actualizar la foto de perfil.');
+     }
+ };
 
   // Actualizar correo electrónico.
 
@@ -246,9 +267,11 @@ export const AuthProvider = ({ children, navigate }) => {
 
   const deleteUserAccount = async (username) => {
     try {
-      await removeAccount(username);
+      const res = await removeAccount(username);
       setUser(null);
       setAuthenticated(false);
+      alert(res.data.message);
+      return res;
     } catch (error) {
       setError(error);
     }
@@ -314,9 +337,10 @@ export const AuthProvider = ({ children, navigate }) => {
     }
   }, [paramUsername]);
 
-  // -------------------------------------------Chat General: Mensajes---------------------------
+  // -------------------------------------------Chat General y Privado: Mensajes---------------------------
 
   // Obtener todos los mensajes.
+
   const fetchAllMessages = async () => {
     try {
       const response = await getAllMessages();
@@ -326,11 +350,33 @@ export const AuthProvider = ({ children, navigate }) => {
     }
   };
 
-  useEffect(() => {
-    fetchAllUsernames();
-    fetchAllMessages(); 
-  }, []);
+  // Obtener todos los mensajes de la partida.
 
+  const fetchAllMessagesGame = async (gameName) => {
+    try {
+      const response = await getAllMessagesGame(gameName);
+      setMessages(response.data);
+    } catch (error) {
+      console.error('Error al obtener los mensajes:', error);
+    }
+    };
+
+  useEffect(() => {
+
+    fetchAllUsernames();
+
+    if(gameName) {
+
+      fetchAllMessagesGame(gameName);
+
+    }
+
+    else {
+
+      fetchAllMessages();
+
+    }
+  }, [gameName]);
 
   return (
     <AuthContext.Provider
@@ -347,6 +393,7 @@ export const AuthProvider = ({ children, navigate }) => {
         deleteUserAccount,
         fetchConnectionTime,
         fetchAllMessages,
+        fetchAllMessagesGame,
         user,
         users,
         connectionTime,

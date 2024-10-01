@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/auth.context';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
-import AppWrapper from './components/Inactividad';
 
 // ----------------------------- Usuarios ------------------------------
 
@@ -27,9 +26,9 @@ import JoinGamePage from './pages/games/JoinGame';
 import GamePage from './pages/games/GamePage';
 import GameList from './pages/games/GameList';
 
-// ----------------------------- Notificaciones -------------------------
+// ----------------------------- Preguntas frecuentes --------------------
 
-import Notification from './components/Notification';
+import Questions from './pages/faqs/Questions';
 
 function App() {
   
@@ -44,20 +43,20 @@ function App() {
       <Route path = '/auth/login' element={<LoginPage/>} />
 
 
-      <Route element = {<AppWrapper><PrivateRoute/></AppWrapper>}>
+      <Route element = {<PrivateRoute/>}>
       <Route path = '/users/profile/:username' element={<ProfilePage/>} />
       <Route path = '/users/profile/:username/change-email' element={<EmailFormPage/>} />
       <Route path = '/users/profile/:username/change-password' element={<PasswordFormPage/>} />
-      <Route path = '/:username/update-profile-picture' element={<ProfilePictureFormWindow/>} />
+      <Route path = '/users/profile/:username/update-profile-picture' element={<ProfilePictureFormWindow/>} />
       <Route path = '/chat' element={<Chat/>} />
       <Route path = "/play" element={<InitialGamePage />} />
+      <Route path = "/faqs" element={<Questions />} />
       <Route path = "/create" element={<CreateGamePage />} />
       <Route path = "/join" element={<JoinGamePage />} />
       <Route path = "/play/join" element={<GameList />} />
       <Route path = "/play/:gameName" element={<GamePage />} />
       </Route>
     </Routes>
-    <Notification />
     </GameProvider>
     </BrowserRouter>
     </AuthProvider>

@@ -7,10 +7,8 @@ import {
   Delete,
   Param,
   HttpStatus,
-  Query,
   UploadedFile,
   UseInterceptors,
-  HttpException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
@@ -19,7 +17,6 @@ import {
   UserValidationError,
 } from './users-exception';
 import { AuthService } from './auth/auth.service';
-import { User } from './user.schema';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
@@ -49,10 +46,7 @@ export class UsersController {
     const user = await this.usersService.findUserByUserName(username);
 
     if (!user) {
-      throw new UserValidationException(
-        UserValidationError.UserNotFound,
-        HttpStatus.UNAUTHORIZED,
-      );
+      return null;
     }
 
     return user;
@@ -72,7 +66,7 @@ export class UsersController {
     if (password.length < 8) {
       throw new UserValidationException(
         UserValidationError.PasswordShort,
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        HttpStatus.LENGTH_REQUIRED,
       );
     }
 
@@ -99,11 +93,14 @@ export class UsersController {
       );
     }
 
+    const profilePicture = 'uploads/profile-pictures/defecto.png';
+
     const user = await this.usersService.createUser(
       fullname,
       username,
       email,
       password,
+      profilePicture,
     );
 
     const token = await this.authService.generateToken(user._id);
@@ -206,9 +203,9 @@ export class UsersController {
     }
   }
 
-  // Actualizar perfil.
+  // Actualizar foto de perfil.
 
-  @Put(':username/update-profile-picture')
+  @Put('/profile/:username/update-profile-picture')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -227,26 +224,27 @@ export class UsersController {
     @UploadedFile() file: Express.Multer.File,
     @Body('imageUrl') imageUrl: string,
   ) {
+
     let filePath = '';
 
     if (file) {
-      filePath = `/uploads/profile-pictures/${file.filename}`;
+
+      filePath = `uploads/profile-pictures/${file.filename}`;
 
     } else if (imageUrl) {
 
       filePath = imageUrl;
 
     } else {
-      throw new Error(
-        'Debe proporcionar un archivo o una URL de imagen válida.',
-      );
+
+      throw new Error('Debe proporcionar un archivo o una URL de imagen válida.');
+
     }
 
-    // Llamar al servicio para actualizar la foto de perfil con la ruta de la imagen.
-    await this.usersService.updateProfilePicture(username, filePath);
+    const res = await this.usersService.updateProfilePicture(username, filePath);
 
-    // Devolver un mensaje de éxito junto con la ruta de la imagen actualizada.
-    return { message: 'Foto de perfil actualizada correctamente.', filePath };
+    return { message: 'Foto de perfil actualizada correctamente.', res };
+    
   }
 
   // Eliminar un usuario

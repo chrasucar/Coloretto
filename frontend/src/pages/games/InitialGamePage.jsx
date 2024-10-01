@@ -16,8 +16,6 @@ const InitialGamePage = () => {
     }
   }, [user, navigate]);
 
-  // Inicio del botón Jugar, elegir entre Crear partida o unirse. 
-  // Si ya tiene una partida, directamente va a la lista de partidas.
 
   useEffect(() => {
     const checkUserGame = async () => {
@@ -27,6 +25,7 @@ const InitialGamePage = () => {
           setHasGame(!!userGame);
           
           if (userGame) {
+            setHasGame(true);
             navigate('/play/join');
           }
         } catch (error) {
@@ -53,7 +52,7 @@ const InitialGamePage = () => {
 
   return (
     <div>
-      <h1>¿Quiere jugar? ¡Elige la opción que más desee!</h1>
+      <h1>¡Empiece a jugar!</h1>
       {!hasGame && (
         <button onClick={handleCreateGame}>
           Crear Partida

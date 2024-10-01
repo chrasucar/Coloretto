@@ -4,10 +4,12 @@ import { useAuth } from '../../context/auth.context';
 import Emoticon from '../../components/Emoticon';
 import ReactionPicker from '../../components/Reaction';
 import '../../css/Chat.css';
+import { useParams } from 'react-router-dom';
 
 function Chat() {
 
-  const { user, fetchAllMessages, messages: contextMessages } = useAuth();
+  const { gameName } = useParams();
+  const { user, fetchAllMessages, fetchAllMessagesGame, messages: contextMessages } = useAuth();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [users, setUsers] = useState([]);
@@ -17,6 +19,7 @@ function Chat() {
   const [reactionPickerPosition, setReactionPickerPosition] = useState({ x: 0, y: 0 });
   const [hoveredMessageId, setHoveredMessageId] = useState(null);
   const [typingUsers, setTypingUsers] = useState([]);
+  const [typingGameUsers, setTypingGameUsers] = useState([]);
   const emoticonPickerRef = useRef(null);
   const reactionPickerRef = useRef(null);
   const socketRef = useRef(null);
@@ -41,7 +44,7 @@ function Chat() {
 
     if (!socketRef.current) {
       socketRef.current = io('http://localhost:3000', {
-        query: { userName: user.username },
+        query: { userName: user.username, gameName },
       });
     }
 
@@ -49,6 +52,16 @@ function Chat() {
 
     socket.on('message', (message) => {
       setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          ...message,
+          formattedText: formatMessageText(message.text),
+        },
+      ]);
+    });
+
+    socket.on('general', (message) => {
+        setMessages((prevMessages) => [
         ...prevMessages,
         {
           ...message,
@@ -80,32 +93,47 @@ function Chat() {
     socket.on('typing', (usersTyping) => {
       setTypingUsers(usersTyping);
     });
-
+  
     socket.on('stop-typing', (usersTyping) => {
       setTypingUsers(usersTyping);
+    });
+  
+    socket.on('typingGame', (usersTyping) => {
+      setTypingGameUsers(usersTyping);
+    });
+  
+    socket.on('stop-typingGame', (usersTyping) => {
+      setTypingGameUsers(usersTyping);
     });
 
     socket.emit('user-connected', { userName: user.username });
 
     return () => {
       socket.off('message');
+      socket.off('general');
       socket.off('users-updated');
       socket.off('reaction-updated');
       socket.off('reaction-removed');
       socket.off('typing');
       socket.off('stop-typing');
+      socket.off('typingGame');
+      socket.off('stop-typingGame');
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [user.username]);
+  }, [user.username, gameName]);
 
   // Obtener todos los mensajes de los usuarios.
 
   useEffect(() => {
-  if (user && user.username) {
-    fetchAllMessages(user.username);
-  }
-}, [user, fetchAllMessages]);
+    if (user && user.username) {
+      if (gameName) {
+        fetchAllMessagesGame(gameName);
+      } else {
+        fetchAllMessages(user.username);
+      }
+    }
+  }, [user, fetchAllMessages, fetchAllMessagesGame, gameName]);
 
  // Emojis y reacciones.
 
@@ -154,12 +182,17 @@ function Chat() {
   const sendMessage = (e) => {
     e.preventDefault();
     if (input.trim()) {
-      const timestamp = Date.now();
-      socketRef.current.emit('message', { sender: user.username, text: input, timestamp });
-      socketRef.current.emit('stop-typing', { user: user.username });
-      setInput('');
+        const timestamp = Date.now();
+        socketRef.current.emit('message', { sender: user.username, text: input, timestamp, gameName });
+        
+        if (gameName) {
+            socketRef.current.emit('stop-typingGame', { user: user.username, gameName });
+        } else {
+            socketRef.current.emit('stop-typing', { user: user.username });
+        }
+        setInput('');
     }
-  };
+};
 
   const handleEmoticonClick = (emoticon) => {
     setInput(input + emoticon);
@@ -190,10 +223,16 @@ function Chat() {
           user: user.username,
         });
       } else {
+        const currentReactions = message.reactions || {};
+        const newReactions = {
+          ...currentReactions,
+          [emoji]: [user.username]
+        };
         socketRef.current.emit('reaction', {
           messageId: reactionToMessageId,
           emoji,
           user: user.username,
+          reactions: newReactions,
         });
       }
 
@@ -204,13 +243,24 @@ function Chat() {
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
-    socketRef.current.emit('typing', { user: user.username });
+
+    if (e.target.value) {
+        if (gameName) {
+            socketRef.current.emit('typingGame', { user: user.username, gameName });
+        } else {
+            socketRef.current.emit('typing', { user: user.username });
+        }
+    }
 
     clearTimeout(typingTimeout.current);
     typingTimeout.current = setTimeout(() => {
-      socketRef.current.emit('stop-typing', { user: user.username });
+        if (gameName) {
+            socketRef.current.emit('stop-typingGame', { user: user.username, gameName });
+        } else {
+            socketRef.current.emit('stop-typing', { user: user.username });
+        }
     }, 3000);
-  };
+};
 
   return (
     <div className="chat-container">
@@ -267,8 +317,15 @@ function Chat() {
         </ul>
 
         <div className="typing-indicator">
-          {typingUsers.length > 0 &&
-            `${typingUsers.join(', ')} está escribiendo...`}
+          {gameName ? (
+            typingGameUsers.length > 0 ? (
+              `${typingGameUsers.join(', ')} está escribiendo...`
+            ) : null
+          ) : (
+            typingUsers.length > 0 ? (
+              `${typingUsers.join(', ')} está escribiendo...`
+            ) : null
+          )}
         </div>
 
         <form onSubmit={sendMessage} className="chat-form">

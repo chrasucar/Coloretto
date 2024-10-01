@@ -25,13 +25,13 @@ export class UsersService {
     return users.map(user => user.username);
   }
 
-    // Verificar si hay usuarios en la base de datos.
+  // Verificar si hay usuarios en la base de datos.
 
-    async areThereAnyUsers(): Promise<boolean> {
-      const count = await this.userModel.countDocuments().exec();
+  async areThereAnyUsers(): Promise<boolean> {
+    const count = await this.userModel.countDocuments().exec();
   
-      return count > 0;
-    }
+    return count > 0;
+  }
 
   // Crear un usuario nuevo.
 
@@ -40,17 +40,23 @@ export class UsersService {
     username: string,
     email: string,
     password: string,
+    profilePicture: string,
   ): Promise<User> {
+    try {
     const newUser = new this.userModel({
       _id: new mongoose.Types.ObjectId(),
       fullname,
       username,
       email,
       password,
+      profilePicture
     });
 
     return newUser.save();
+  } catch (error) {
+      throw new Error('Error creando el usuario: ' + error.message);
   }
+}
 
   // Encontrar un usuario por su id.
 
@@ -67,11 +73,11 @@ export class UsersService {
   // Encontrar todos los usuarios por sus nombres de usuario.
 
   async findUserIdsByUsernames(usernames: string[]): Promise<Types.ObjectId[]> {
-    const users = await this.userModel.find({ username: { $in: usernames } }).exec();
-    if (users.length !== usernames.length) {
-      throw new NotFoundException('One or more usernames not found');
+    const userIds = await this.userModel.find({ username: { $in: usernames } }).select('_id').exec();
+    if (userIds.length !== usernames.length) {
+      throw new NotFoundException('Uno o mas usuarios no han sido encontrados por id.');
     }
-    return users.map(user => user._id);
+    return userIds.map(user => new Types.ObjectId(user._id));
   }
 
   // Encontrar un usuario por su correo electrónico.
@@ -143,7 +149,7 @@ export class UsersService {
     if (newPassword !== verifyPassword) {
       throw new UserValidationException(
         UserValidationError.PasswordNotEqual,
-        HttpStatus.CONFLICT,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
