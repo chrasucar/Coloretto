@@ -4,6 +4,9 @@ import { useGameStore } from '../../context/GameProvider';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth.context';
 import { toast, ToastContainer } from 'react-toastify';
+import '../../css/games/GameList.css';
+
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
 const GameList = observer(() => {
   const store = useGameStore();
@@ -17,11 +20,10 @@ const GameList = observer(() => {
       return;
     }
   });
-  
-  useEffect(() => {
 
+  useEffect(() => {
     store.fetchGames();
-    store.initSocket(); 
+    store.initSocket();
 
     const handleRefresh = () => {
       store.fetchGames();
@@ -34,7 +36,7 @@ const GameList = observer(() => {
 
     const handleGameDeleted = (deletedGameName) => {
       if (deletedGameName === selectedGame) {
-        toast.info("La partida ha sido eliminada.");
+        toast.info('La partida ha sido eliminada.');
         navigate('/play/join');
       }
     };
@@ -53,7 +55,7 @@ const GameList = observer(() => {
   useEffect(() => {
     const handleGameDeletionTimer = () => {
       const checkGamesForDeletion = () => {
-        store.games.forEach(game => {
+        store.games.forEach((game) => {
           if (game.players.length === 0 && game.lastActivity) {
             const eliminationTime = 30 * 1000;
             const now = Date.now();
@@ -61,22 +63,20 @@ const GameList = observer(() => {
             const timeRemaining = Math.max(eliminationTime - elapsed, 0);
             if (timeRemaining <= 0) {
               store.leaveGame(game.gameName);
-              toast.info(`La partida "${game.gameName}" ha sido eliminada.`);
               store.fetchGames();
             }
           }
         });
       };
-    
-  
+
       checkGamesForDeletion();
       const intervalId = setInterval(checkGamesForDeletion, 2000);
-  
+
       return () => clearInterval(intervalId);
     };
-  
+
     const cleanup = handleGameDeletionTimer();
-  
+
     return cleanup;
   }, [store.games, store]);
 
@@ -84,11 +84,11 @@ const GameList = observer(() => {
     if (!time) {
       return 'Tiempo no disponible';
     }
-  
+
     const preparationTime = new Date(time).getTime();
     const currentTime = Date.now();
     const timeRemaining = preparationTime - currentTime;
-  
+
     if (timeRemaining <= 0) {
       const elapsed = Math.abs(timeRemaining);
       const elapsedSeconds = Math.floor(elapsed / 1000);
@@ -96,7 +96,7 @@ const GameList = observer(() => {
       const secondsLeft = elapsedSeconds % 60;
       return `La partida ha comenzado hace ${elapsedMinutes}m ${secondsLeft}s`;
     }
-  
+
     const seconds = Math.floor(timeRemaining / 1000);
     const minutes = Math.floor(seconds / 60);
     const secondsLeft = seconds % 60;
@@ -110,27 +110,29 @@ const GameList = observer(() => {
       const elapsed = now - new Date(game.lastActivity).getTime();
       const timeRemaining = Math.max(eliminationTime - elapsed, 0);
       const seconds = Math.floor(timeRemaining / 1000);
-      return `Sin jugadores. Eliminando la partida en ${seconds}s`;
+      return `Sin jugadores. Eliminando la partida en ${seconds}s.`;
     }
     return null;
   };
-  
+
   const handleJoinGame = async (gameName) => {
     if (!user) {
       navigate('/login');
       return;
     }
-  
-    const game = store.games.find(g => g.gameName === gameName);
-  
+
+    const game = store.games.find((g) => g.gameName === gameName);
+
     if (game.players.includes(user.username)) {
       navigate(`/play/${gameName}`);
       return;
     }
-  
-    try {
 
-      if (game.players.length < game.maxPlayers || user.username === game.owner) {
+    try {
+      if (
+        game.players.length < game.maxPlayers ||
+        user.username === game.owner
+      ) {
         await store.joinGame(gameName, user.username);
         navigate(`/play/${gameName}`);
       } else {
@@ -147,99 +149,153 @@ const GameList = observer(() => {
 
   const isLastPage = () => store.currentPage >= store.totalPages;
 
-  const isInAnyGame = store.games.some(game => game.players.includes(user.username) || game.owner === user.username);
+  const isInAnyGame = store.games.some(
+    (game) =>
+      game.players.includes(user.username) || game.owner === user.username,
+  );
 
-    const isInCurrentGame = (gameName) => {
-    const currentGame = store.games.find(g => g.gameName === gameName);
-    
+  const isInCurrentGame = (gameName) => {
+    const currentGame = store.games.find((g) => g.gameName === gameName);
+
     if (currentGame) {
-      return currentGame.players.includes(user.username) || currentGame.owner === user.username;
+      return (
+        currentGame.players.includes(user.username) ||
+        currentGame.owner === user.username
+      );
     }
-    
+
     return false;
+  };
 
-    };
-    
-    const canJoinGame = (game) => {
+  const canJoinGame = (game) => {
+    if (!isInAnyGame) {
+      return true;
+    }
 
-      if (!isInAnyGame) {
-        return true;
-      } 
+    if (
+      isInCurrentGame(game.gameName) &&
+      (user.username === game.owner || game.players.includes(user.username))
+    ) {
+      return true;
+    }
 
-      if (isInCurrentGame(game.gameName) && (user.username === game.owner || game.players.includes(user.username))) {
-        return true;
-      }
+    if (
+      isInAnyGame &&
+      game.players.length >= game.maxPlayers &&
+      user.username !== game.owner
+    ) {
+      return false;
+    }
 
-      if (isInAnyGame && game.players.length >= game.maxPlayers && user.username !== game.owner) {
-        return false;
-      }
+    return !isInAnyGame;
+  };
 
-      return !isInAnyGame;
-
-    };
-
-    return (
-      <div>
-        <h1>Partidas disponibles</h1>
-        {store.isLoading ? (
-          <div>Cargando...</div>
-        ) : store.error ? (
-          <div>{store.error}</div>
-        ) : (
-          <>
+  return (
+    <div className="game-list-container">
+      <h1 className="item glow">Partidas disponibles</h1>
+      {store.isLoading ? (
+        <div></div>
+      ) : store.error ? (
+        <div>{store.error}</div>
+      ) : (
+        <>
+          <div className="games-section">
             {store.games.length === 0 ? (
-              <p>No hay partidas disponibles.</p>
+              <p className="no-games-message">No hay partidas actualmente.</p>
             ) : (
-              <ul>
+              <ul className="games-list">
                 {store.games
                   .slice()
                   .sort((gameA, gameB) => {
                     const isUserAOwner = gameA.owner === user?.username;
                     const isUserBOwner = gameB.owner === user?.username;
-  
+
                     if (isUserAOwner && !isUserBOwner) return -1;
                     if (!isUserAOwner && isUserBOwner) return 1;
-  
+
                     return gameA.gameName.localeCompare(gameB.gameName);
                   })
                   .map((game) => (
-                    <li key={game._id}>
-                      {game.gameName} - {game.players.length}/{game.maxPlayers}
-                      {game.isFinished ? (
-                      game.players.length === 0 ? (
-                        <span> - Eliminando...</span>
-                      ) : (
-                        <span> - Partida finalizada, esperando al abandono de jugadores...</span>
-                      )
-                    ) : game.players.length === 0 ? (
-                      <span> {formatEmptyGameMessage(game)}</span>
-                      ) : (
-                        game.preparationTime && <span> - {formatPreparationTime(game.preparationTime)}.</span>
-                      )}
-                      <button
-                        onClick={() => handleJoinGame(game.gameName)}
-                        disabled={game.players.length === 0 || !canJoinGame(game)}
-                      >
-                        {game.isFinished ? 'Partida finalizada' : (game.players.length === 0 ? 'Unirse' : isInCurrentGame(game.gameName) ? 'Unido' : 'Unirse')}
-                      </button>
+                    <li key={game._id} className="game-card">
+                      <div className="game-info">
+                        <span className="game-name">{game.gameName}</span>
+                        <span className="game-name">Propietario: {game.owner}</span>
+                        <span className="players-info">
+                          {game.players.length} de {game.maxPlayers} jugadores.
+                        </span>
+                        {game.isFinished ? (
+                          game.players.length === 0 ? (
+                            <span className="game-status">
+                              {' '}
+                              - Eliminando...
+                            </span>
+                          ) : (
+                            <span className="game-status">
+                              {' '}
+                              - Partida finalizada, esperando al abandono de
+                              jugadores...
+                            </span>
+                          )
+                        ) : game.players.length === 0 ? (
+                          <span className="game-status">
+                            {formatEmptyGameMessage(game)}
+                          </span>
+                        ) : (
+                          game.preparationTime && (
+                            <span className="game-status">
+                              {' '}
+                              {formatPreparationTime(game.preparationTime)}.
+                            </span>
+                          )
+                        )}
+                      </div>
+                      <div className="game-actions">
+                        <button
+                          className="join-game-button"
+                          onClick={() => handleJoinGame(game.gameName)}
+                          disabled={
+                            game.players.length === 0 || !canJoinGame(game)
+                          }
+                        >
+                          {game.isFinished
+                            ? 'Partida finalizada'
+                            : game.players.length === 0
+                              ? 'Unirse'
+                              : isInCurrentGame(game.gameName)
+                                ? 'Unido'
+                                : 'Unirse'}
+                        </button>
+                      </div>
                     </li>
                   ))}
               </ul>
             )}
-            <div>
-              <button disabled={store.currentPage <= 1} onClick={() => store.fetchGames(store.currentPage - 1)}>
-                Anterior
+          </div>
+
+          <div className="game-content">
+            <div className="game-item">
+              <button
+                className="arrow-button"
+                disabled={store.currentPage <= 1}
+                onClick={() => store.fetchGames(store.currentPage - 1)}
+              >
+                <FaArrowLeft className="arrow left-arrow" />
               </button>
-              <span>Página {store.currentPage} de {store.totalPages}</span>
-              <button disabled={isLastPage()} onClick={() => store.fetchGames(store.currentPage + 1)}>
-                Siguiente
+              <span className="page">Página {store.currentPage}</span>
+              <button
+                className="arrow-button"
+                disabled={isLastPage()}
+                onClick={() => store.fetchGames(store.currentPage + 1)}
+              >
+                <FaArrowRight className="arrow right-arrow" />
               </button>
             </div>
-          </>
-        )}
-      <ToastContainer/>
-      </div>
-    );
-  });
-  
-  export default GameList;
+          </div>
+        </>
+      )}
+      <ToastContainer />
+    </div>
+  );
+});
+
+export default GameList;

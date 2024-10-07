@@ -80,14 +80,14 @@ export class AuthService {
       if (!user) {
         throw new UserValidationException(
           UserValidationError.UserNotFound,
-          HttpStatus.UNAUTHORIZED,
+          HttpStatus.NOT_FOUND,
         );
       }
 
       if (password !== user.password) {
         throw new UserValidationException(
           UserValidationError.PasswordNotFound,
-          HttpStatus.BAD_REQUEST,
+          HttpStatus.NOT_FOUND,
         );
       }
 
@@ -135,16 +135,9 @@ export class AuthService {
 
       const user = await this.usersService.findById(decoded.sub);
 
-      if (!user) {
-        return null;
-      }
-
       return { _id: user._id, username: user.username, email: user.email };
     } catch (error) {
-      throw new UserValidationException(
-        UserValidationError.TokenInvalid,
-        HttpStatus.UNAUTHORIZED,
-      );
+      return null;
     }
   }
 

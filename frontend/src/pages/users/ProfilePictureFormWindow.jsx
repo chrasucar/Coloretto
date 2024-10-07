@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import '../../css/ProfilePictureFormWindow.css';
+import '../../css/users/ProfilePictureFormWindow.css';
 import { useAuth } from '../../context/auth.context';
 import { useNavigate, useParams } from 'react-router-dom';
 
 function ProfilePictureFormWindow() {
 
   const [file, setFile] = useState(null);
-  const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState(null);
   const { handleUpdateProfilePicture } = useAuth();
   const { username } = useParams();
@@ -18,19 +17,10 @@ function ProfilePictureFormWindow() {
     const selectedFile = event.target.files[0];
     if (selectedFile && selectedFile.type.startsWith('image/')) {
       setFile(selectedFile);
-      setImageUrl('');
     } else {
       setError('Por favor, selecciona un archivo de imagen válido.');
       setFile(null);
     }
-  };
-
-  // Cambiar foto de perfil por URL (no se ha desplegado aún, servirá cuando se despliegue).
-
-  const handleUrlChange = (event) => {
-    setImageUrl(event.target.value);
-    setFile(null);
-    setError(null);
   };
 
   const handleClose = () => {
@@ -41,52 +31,50 @@ function ProfilePictureFormWindow() {
 
     try {
 
-        if (!file && !imageUrl) {
+        if (!file) {
 
-            throw new Error('Debe proporcionar una imagen o una URL de imagen válida.');
+            throw new Error('Debe proporcionar una imagen válida.');
 
         }
 
-        await handleUpdateProfilePicture(username, file, imageUrl);
+        await handleUpdateProfilePicture(username, file);
 
         navigate(`/users/profile/${username}`);
 
     } catch (error) {
 
-        setError('Error al actualizar la foto de perfil.');
+        setError(error.message);
         
     }
 };
 
 return (
   <div className="modal">
-      <div className="modal-content">
-          <h2>Actualizar Foto de Perfil</h2>
-          {error && <p>{error}</p>}
-          <div>
-              <label htmlFor="urlInput">Introduce la URL de la imagen:</label>
-              <input
-                  type="text"
-                  id="urlInput"
-                  value={imageUrl}
-                  onChange={handleUrlChange}
-                  disabled={file !== null}
-              />
-          </div>
-          <div>
-              <label htmlFor="fileInput">Si lo prefieres, súbelo desde tu PC:</label>
-              <input
-                  type="file"
-                  id="fileInput"
-                  accept="image/*"
-                  onChange={handleFileChange}
-              />
-          </div>
-          <button onClick={handleSubmit}>Actualizar</button>
-          <button onClick={handleClose}>Cancelar</button>
+    <div className="modal-content">
+    <h2>Actualizar Foto de Perfil</h2>
+      {error && <p>{error}</p>}
+      <div className="file-input-container">
+        <label htmlFor="fileInput" className="custom-file-label">
+          Selecciona una imagen
+        </label>
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="custom-file-input"
+        />
+        <span className="file-selected">
+          {file ? file.name : "Archivo no seleccionado."}
+        </span>
       </div>
+      <div className="button-container">
+        <button className="button-update" onClick={handleSubmit}>Actualizar</button>
+        <button className="button-cancel" onClick={handleClose}>Cancelar</button>
+      </div>
+    </div>
   </div>
 );
-}
+};
 
 export default ProfilePictureFormWindow;

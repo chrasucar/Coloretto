@@ -4,7 +4,10 @@ import { useAuth } from '../../context/auth.context';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import ModalSuccessLogin from '../../components/ModalSuccessLogin';
-import '../../css/LoginPage.css';
+import '../../css/users/LoginPage.css';
+
+import { FaUser } from "react-icons/fa";
+import { RiLockPasswordFill } from "react-icons/ri";
 
 function LoginPage() {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -49,30 +52,34 @@ function LoginPage() {
   return (
     <div className="login-container">
       <h2>Iniciar sesión</h2>
-      {localError && <p className="error-message">{localError}</p>}
+      {localError && <p className="error">{localError}</p>}
       {Array.isArray(loginError) &&
         loginError.map((error, i) => (
-          <div key={i} className="error-message">
+          <div key={i} className="error">
             {error}
           </div>
         ))}
 
       <form onSubmit={onSubmit}>
+      {errors.username && <p className="error">Usuario requerido.</p>}
+      <div className = "inputLogin">
         <input
           type="text"
           placeholder="Usuario"
           {...register('username', { required: true })}
         />
-        {errors.username && <p className="error-message">Usuario requerido.</p>}
+        <FaUser className="icon"/>
+        </div>
 
+        {errors.password && (<p className="error">Contraseña requerida.</p>)}
+        <div className = "inputLogin">
         <input
           type="password"
           placeholder="Contraseña"
           {...register('password', { required: true })}
         />
-        {errors.password && (
-          <p className="error-message">Contraseña requerida.</p>
-        )}
+        <RiLockPasswordFill className="icon"/>  
+        </div>
 
         <button type="submit">Iniciar Sesión</button>
       </form>

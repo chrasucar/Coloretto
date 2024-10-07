@@ -1,7 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/auth.context';
 import { useNavigate } from 'react-router-dom';
-import '../../css/ProfilePage.css';
+import '../../css/users/ProfilePage.css';
+
+import { BsFillPencilFill } from "react-icons/bs";
+import { HiStatusOnline } from "react-icons/hi";
+import { GiCardDraw } from "react-icons/gi";
 
 function ProfilePage() {
   const {
@@ -14,6 +18,7 @@ function ProfilePage() {
   } = useAuth();
 
   const navigate = useNavigate();
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     if (!authenticated && !loading) {
@@ -23,7 +28,7 @@ function ProfilePage() {
 
   const handleDeleteAccount = async () => {
 
-    const isConfirmed = window.confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es irreversible.');
+    const isConfirmed = window.confirm('¿Estás seguro de que deseas eliminar tu cuenta?');
 
     if (!isConfirmed) return;
   
@@ -31,7 +36,9 @@ function ProfilePage() {
 
       await deleteUserAccount(user.profile.username);
 
-      navigate('/');
+      setSuccessMessage('Cuenta eliminada correctamente.');
+
+      setTimeout(() => navigate('/'), 2000);
 
     } catch (error) {
 
@@ -42,47 +49,58 @@ function ProfilePage() {
 
   return (
     <div className="profile-container">
-      <h2>Perfil de Usuario</h2>
+      <h2>Perfil de usuario</h2>
       {loading ? (
         <p>Cargando perfil...</p>
       ) : error && error.message ? (
         <p>Error al cargar el perfil: {error.message}</p>
       ) : (
-        <>
-          {user && user.profile && (
-            <div>
-              <p>Nombre y Apellidos: {user.profile.fullname}</p>
-              <p>Nombre de Usuario: {user.profile.username}</p>
-              <p>Correo Electrónico: {user.profile.email}</p>
-              <p>Foto:</p>
-              {user.profile.profilePicture && (
-                <img
-                  src={`http://localhost:3000/${user.profile.profilePicture}`}
-                  alt="Foto"
-                  style={{
-                    width: '150px',
-                    height: '150px',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    objectPosition: 'center',
-                  }}
-                />
-              )}
-              <button onClick={() => navigate(`/users/profile/${user.profile.username}/change-email`)}>Actualizar correo electrónico</button>
-              <button onClick={() => navigate(`/users/profile/${user.profile.username}/change-password`)}>Actualizar contraseña</button>
-              <button onClick={() => navigate(`/users/profile/${user.profile.username}/update-profile-picture`)}>Actualizar foto de perfil</button>
-            
-              <p>Partidas jugadas: {user.profile.gamesPlayed}</p>
-              <p>Partidas ganadas: {user.profile.gamesWon}</p>
-              <p>Partidas perdidas: {user.profile.gamesLost}</p>
-              <p>{connectionTime !== null ? connectionTime : 'No disponible'}</p>
-              <button onClick={handleDeleteAccount}>Eliminar cuenta</button>
+        <div className="profile-info">
+        {successMessage && <div className="alert">{successMessage}</div>}
+        {user && user.profile && (
+          <div className="user-details">
+          <div className="profile-picture">
+          {user.profile.profilePicture && (
+          <img className='photo' src={`process.env.FRONTEND_URL/${user.profile.profilePicture}`} alt="Foto de perfil"
+          onClick={() => navigate(`/users/profile/${user.profile.username}/update-profile-picture`)}
+          />)}
+          <div className="connection-status">
+            <HiStatusOnline className="status-icon" />
+            <p>{connectionTime !== null ? connectionTime : 'No disponible'}</p>
+          </div>
+          </div>
+
+              <div className="user-data">
+                <p><strong>Nombre y Apellidos:</strong> {user.profile.fullname}</p>
+                <p><strong>Nombre de usuario:</strong> {user.profile.username}</p>
+                <p>
+                  <strong>Correo electrónico:</strong> {user.profile.email}
+                  <BsFillPencilFill
+                    className="update-icon"
+                    title="Actualizar correo electrónico"
+                    onClick={() =>
+                      navigate(`/users/profile/${user.profile.username}/change-email`)
+                    }
+                  />
+                </p>
+              </div>
+
+              <div className="user-stats">
+              <GiCardDraw className = "icon-game"/>
+              <p className='games'>Partidas jugadas: {user.profile.gamesPlayed}</p>
+              <p className='games'>Partidas ganadas: {user.profile.gamesWon}</p>
+              <p className='games'>Partidas perdidas: {user.profile.gamesLost}</p>
+              </div>
+              <div className="user-actions">
+              <button className="button-password" onClick={() => navigate(`/users/profile/${user.profile.username}/change-password`)}>Actualizar contraseña</button>
+              <button className="button-delete" onClick={handleDeleteAccount}>Eliminar cuenta</button>
+              </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );
-}
+};
 
 export default ProfilePage;

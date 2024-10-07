@@ -14,9 +14,11 @@ async function bootstrap() {
 
   // Activar CORS para frontend.
 
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+
   app.enableCors({
 
-    origin: 'http://localhost:4000', 
+    origin: frontendUrl, 
     credentials: true,
 
   });
@@ -27,7 +29,9 @@ async function bootstrap() {
 
   app.useWebSocketAdapter(new IoAdapter(app));
 
-  await app.listen(3000);
+  const port = process.env.PORT || 3000;
+
+  await app.listen(port);
 
 }
 
@@ -37,7 +41,7 @@ bootstrap();
 
 passport.use(new JwtStrategy({
 
-    secretOrKey: 'tfg2425',
+    secretOrKey: process.env.JWT_SECRET || 'tfg2425',
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),}, 
     (payload, done) => {
     const userId = payload.sub;

@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import { useAuth } from '../../context/auth.context';
 import Emoticon from '../../components/Emoticon';
 import ReactionPicker from '../../components/Reaction';
-import '../../css/Chat.css';
+import '../../css/chats/Chat.css';
 import { useParams } from 'react-router-dom';
 
 function Chat() {
@@ -40,10 +40,9 @@ function Chat() {
   // Respecto al websocket del chat.
 
   useEffect(() => {
-    if (!user || !user.username) return;
 
     if (!socketRef.current) {
-      socketRef.current = io('http://localhost:3000', {
+      socketRef.current = io('http://localhost:3000' || process.env.FRONTEND_URL, {
         query: { userName: user.username, gameName },
       });
     }
@@ -123,17 +122,30 @@ function Chat() {
     };
   }, [user.username, gameName]);
 
+    const fetchAllMessagesRef = useRef(fetchAllMessages);
+    const fetchAllMessagesGameRef = useRef(fetchAllMessagesGame);
+
+  useEffect(() => {
+
+    fetchAllMessagesRef.current = fetchAllMessages;
+    fetchAllMessagesGameRef.current = fetchAllMessagesGame;
+
+  }, [fetchAllMessages, fetchAllMessagesGame]);
+
   // Obtener todos los mensajes de los usuarios.
 
   useEffect(() => {
     if (user && user.username) {
-      if (gameName) {
-        fetchAllMessagesGame(gameName);
-      } else {
-        fetchAllMessages(user.username);
-      }
+        const fetchMessages = async () => {
+            if (gameName) {
+                await fetchAllMessagesGameRef.current(gameName);
+            } else {
+                await fetchAllMessagesRef.current(user.username);
+            }
+        };
+        fetchMessages();
     }
-  }, [user, fetchAllMessages, fetchAllMessagesGame, gameName]);
+  }, [user, gameName]);
 
  // Emojis y reacciones.
 
@@ -265,6 +277,7 @@ function Chat() {
   return (
     <div className="chat-container">
       <div className="chat-form-container">
+      <div className="messages-section">
         <ul className="message-list">
           {messages.length > 0 ? (
             messages.map((msg) => (
@@ -303,7 +316,7 @@ function Chat() {
                 <div className="message-reactions">
                   {msg.reactions &&
                     Object.entries(msg.reactions).map(([emoji, users]) => (
-                      <div key={emoji} className="reaction">
+                      <div key={emoji} className="reaction" onClick={() => handleEmoticonClick(emoji, msg.messageId)}>
                         <span>{emoji}</span>
                         <span>({users.length})</span>
                       </div>
@@ -315,6 +328,7 @@ function Chat() {
             <li>No hay mensajes.</li>
           )}
         </ul>
+        </div>
 
         <div className="typing-indicator">
           {gameName ? (
@@ -329,6 +343,7 @@ function Chat() {
         </div>
 
         <form onSubmit={sendMessage} className="chat-form">
+        <div className="emoticon-container">
           <button
             type="button"
             className="emoticon-button"
@@ -341,6 +356,7 @@ function Chat() {
               <Emoticon onSelect={handleEmoticonClick} />
             </div>
           )}
+          </div>
           <input
             id="messageInput"
             type="text"

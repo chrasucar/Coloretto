@@ -1,0 +1,59 @@
+.footer {
+  background-color: rgba(
+    219,
+    219,
+    219,
+    0.4
+  );
+  padding: 30px 20px;
+  text-align: center;
+  position: relative;
+  font-family: 'Baloo', cursive;
+}
+
+.footer-content p {
+  margin: 10px 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.footer-content p:first-of-type {
+  font-weight: bold;
+}
+
+.footer-content p:last-of-type {
+  font-weight: bold;
+}
+
+.chameleon2-gif {
+  width: 150px;
+  height: auto;
+}
+
+/* Diseño responsive */
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 20px 10px;
+  }
+
+  .footer-content p {
+    font-size: 14px;
+    line-height: 1.4; 
+  }
+
+  .chameleon2-gif {
+    width: 100px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .footer-content p {
+    font-size: 18px;
+    line-height: 1.8;
+  }
+
+  .chameleon2-gif {
+    width: 180px;
+  }
+}

@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../context/GameProvider';
 import { useAuth } from '../../context/auth.context';
+import '../../css/games/InitialGamePage.css';
 
 const InitialGamePage = () => {
   const navigate = useNavigate();
   const store = useGameStore();
   const { user } = useAuth();
   const [hasGame, setHasGame] = useState(false);
+  const [colorIndex, setColorIndex] = useState(0);
+  const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8'];
 
   useEffect(() => {
     if (!user) {
@@ -50,17 +53,26 @@ const InitialGamePage = () => {
     navigate('/play/join');
   };
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setColorIndex((prevIndex) => (prevIndex + 1) % colors.length);
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div>
+    <div className="container">
       <h1>¡Empiece a jugar!</h1>
+      <div className='buttons'>
       {!hasGame && (
-        <button onClick={handleCreateGame}>
-          Crear Partida
-        </button>
+        <button className = "create-game" style={{ backgroundColor: colors[colorIndex] }} onClick={handleCreateGame}>Crear</button>
       )}
-      <button onClick={handleJoinGame}>Unirse</button>
+        <button className = "join-game" style={{ backgroundColor: colors[colorIndex] }} onClick={handleJoinGame}>Unirse</button>
+    </div>
     </div>
   );
 };
+
 
 export default InitialGamePage;

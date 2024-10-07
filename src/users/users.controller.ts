@@ -6,16 +6,11 @@ import {
   Body,
   Delete,
   Param,
-  HttpStatus,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
-import {
-  UserValidationException,
-  UserValidationError,
-} from './users-exception';
 import { AuthService } from './auth/auth.service';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -61,37 +56,6 @@ export class UsersController {
     @Body('email') email: string,
     @Body('password') password: string,
   ) {
-    // Validar la longitud de la contraseña.
-
-    if (password.length < 8) {
-      throw new UserValidationException(
-        UserValidationError.PasswordShort,
-        HttpStatus.LENGTH_REQUIRED,
-      );
-    }
-
-    // Validar si existe ya el usuario o no.
-
-    const existingUserName =
-      await this.usersService.findUserByUserName(username);
-
-    if (existingUserName) {
-      throw new UserValidationException(
-        UserValidationError.UsernameTaken,
-        HttpStatus.CONFLICT,
-      );
-    }
-
-    // Validar si existe ya el email o no.
-
-    const existingUserEmail = await this.usersService.findUserByEmail(email);
-
-    if (existingUserEmail) {
-      throw new UserValidationException(
-        UserValidationError.EmailTaken,
-        HttpStatus.CONFLICT,
-      );
-    }
 
     const profilePicture = 'uploads/profile-pictures/defecto.png';
 
@@ -116,44 +80,13 @@ export class UsersController {
     @Body('password') password: string,
     @Body('newEmail') newEmail: string,
   ) {
-    try {
-      await this.usersService.changeEmail(username, password, newEmail);
-      return { message: 'Correo electrónico actualizado correctamente.' };
-    } catch (error) {
-      if (error instanceof UserValidationException) {
-        // Si ya es una excepción personalizada, lanzarla nuevamente
-        throw error;
-      } else if (error.response) {
-        // Si hay una respuesta en el error
-        const { status } = error.response;
-        switch (status) {
-          case HttpStatus.CONFLICT:
-            // Si es un conflicto de correo electrónico.
-            throw new UserValidationException(
-              UserValidationError.EmailSame,
-              HttpStatus.CONFLICT,
-            );
-          case HttpStatus.NOT_FOUND:
-            // Si no se encuentra el usuario.
-            throw new UserValidationException(
-              UserValidationError.UserNotFound,
-              HttpStatus.NOT_FOUND,
-            );
-          default:
-            // Para otros errores de respuesta.
-            throw new Error(
-              'Error inesperado al actualizar el correo electrónico.',
-            );
-        }
-      } else {
-        // Para otros errores no relacionados con la respuesta.
-        throw new Error(
-          'Error inesperado al actualizar el correo electrónico.',
-        );
-      }
-    }
-  }
 
+    await this.usersService.changeEmail(username, password, newEmail);
+
+    return { message: 'Correo electrónico actualizado correctamente.' };
+
+  }
+  
   // Actualizar contraseña.
 
   @Put('/profile/:username/change-password')
@@ -163,45 +96,12 @@ export class UsersController {
     @Body('newPassword') newPassword: string,
     @Body('verifyPassword') verifyPassword: string,
   ) {
-    try {
-      await this.usersService.changePassword(
-        username,
-        currentPassword,
-        newPassword,
-        verifyPassword
-      );
+  
+    await this.usersService.changePassword(username, currentPassword, newPassword, verifyPassword);
 
-      return { message: 'Contraseña actualizada correctamente.' };
-    } catch (error) {
-      if (error instanceof UserValidationException) {
-        // Si ya es una excepción personalizada, lanzarla nuevamente.
-        throw error;
-      } else if (error.response) {
-        // Si hay una respuesta en el error.
-        const { status } = error.response;
-        switch (status) {
-          case HttpStatus.CONFLICT:
-            // Si es un conflicto de contraseña.
-            throw new UserValidationException(
-              UserValidationError.EmailSame,
-              HttpStatus.CONFLICT,
-            );
-          case HttpStatus.NOT_FOUND:
-            // Si no se encuentra el usuario.
-            throw new UserValidationException(
-              UserValidationError.UserNotFound,
-              HttpStatus.NOT_FOUND,
-            );
-          default:
-            // Para otros errores de respuesta.
-            throw new Error('Error inesperado al actualizar la contraseña.');
-        }
-      } else {
-        // Para otros errores no relacionados con la respuesta.
-        throw new Error('Error inesperado al actualizar la contraseña.');
-      }
+    return { message: 'Contraseña actualizada correctamente.' };
+
     }
-  }
 
   // Actualizar foto de perfil.
 
@@ -222,7 +122,6 @@ export class UsersController {
   async updateProfilePicture(
     @Param('username') username: string,
     @UploadedFile() file: Express.Multer.File,
-    @Body('imageUrl') imageUrl: string,
   ) {
 
     let filePath = '';
@@ -231,13 +130,9 @@ export class UsersController {
 
       filePath = `uploads/profile-pictures/${file.filename}`;
 
-    } else if (imageUrl) {
-
-      filePath = imageUrl;
-
     } else {
 
-      throw new Error('Debe proporcionar un archivo o una URL de imagen válida.');
+      throw new Error('Debe proporcionar un archivo válido.');
 
     }
 

@@ -369,12 +369,8 @@ const GamePage = observer(() => {
 
   return (
     <div>
-      <h1>Detalles del Juego</h1>
       {gameDetails ? (
         <div>
-          <p><strong>Propietario:</strong> {gameDetails.owner}</p>
-          <p><strong>Nombre del Juego:</strong> {gameDetails.gameName}</p>
-          <p><strong>Máximo de Jugadores:</strong> {gameDetails.maxPlayers}</p>
           <p><strong>Jugadores:</strong> {gameDetails.players.join(', ')}</p>
           <p><strong>Jugadores IA:</strong> {gameDetails.aiPlayers.map(player => player.name).join(', ')}</p>
           <p><strong>¿Está preparado?:</strong> {gameDetails.isPrepared ? 'Sí' : 'No'}</p>
@@ -452,15 +448,15 @@ const GamePage = observer(() => {
     </div>
 
           <button onClick={handleRevealCard} disabled={selectedColumnIndex === null || currentUserIndex !== currentPlayerIndex}>
-          Revelar Carta</button>
+          Revelar carta</button>
 
           <button onClick={handleTakeColumn} disabled={selectedColumnIndex === null || currentUserIndex !== currentPlayerIndex}>
-          Tomar Columna</button>
+          Tomar columna</button>
 
           <button onClick={handleLeaveGame}>
-          Abandonar Partida</button>
+          Abandonar partida</button>
 
-          {/*Poner esto: <Chat gameName={gameName} />*/}
+          {<Chat gameName={gameName}/>}
           <ToastContainer />
         </div>
 

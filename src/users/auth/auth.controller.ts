@@ -90,18 +90,12 @@ export class AuthController {
 
   @Post('verify-token')
   async verifyToken(@Req() req: Request, @Res() res: Response) {
+
     const { token } = req.cookies;
     
-    try {
-      const userData = await this.authService.verifyToken(token);
+    const userData = await this.authService.verifyToken(token);
 
-      return res.status(HttpStatus.OK).json(userData);
-    } catch (error) {
-      throw new UserValidationException(
-        UserValidationError.TokenInvalid,
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
+    return res.status(HttpStatus.OK).json(userData);
   }
 
   // Renovación de token

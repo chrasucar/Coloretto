@@ -1,28 +1,36 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/auth.context';
 import { useParams, useNavigate } from 'react-router-dom';
-import '../../css/EmailFormPage.css';
+import '../../css/users/EmailFormPage.css';
+
+import { FaEnvelope } from "react-icons/fa";
+import { RiLockPasswordFill } from "react-icons/ri";
 
 function EmailFormPage() {
 
   const { handleUpdateEmail } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [error, setError] = useState(null);
   const { username } = useParams();
   const navigate = useNavigate();
 
   // Actualizar email correctamente.
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
-    setErrorMessage(null);
+
     try {
+
       await handleUpdateEmail(username, password, email);
 
       navigate(`/users/profile/${username}`);
+
     } catch (error) {
-      setErrorMessage(error.message);
+
+      setError(error.message);
+
     }
   };
 
@@ -34,31 +42,35 @@ function EmailFormPage() {
 
   return (
     <div className="email-form">
-      <h2>Actualizar correo electrónico</h2>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <h2>Actualizar correo</h2>
+      {error && <p className='error'>{error}</p>}
       <form onSubmit={handleSubmit}>
-        <label>
-          Contraseña:
+          <div className = "inputsEmailUpdate">
           <input
+            name="password"
             type="password"
+            placeholder='Contraseña actual'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </label>
-        <label>
-          Nuevo correo electrónico:
+          <RiLockPasswordFill className="icon"/> 
+          </div>
+          <div className = "inputsEmailUpdate">
           <input
+            name="password"
             type="email"
+            placeholder='Nuevo correo electrónico'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </label>
-        <button type="submit">Guardar cambios</button>
-        <button type="button" onClick={handleCancel}>
-          Cancelar
-        </button>
+          <FaEnvelope className="icon"/>
+          </div>
+          <div className="button-container">
+          <button type="submit" className='button-update'>Actualizar</button>
+          <button type="button" className='button-cancel' onClick={handleCancel}>Cancelar</button>
+          </div>
       </form>
     </div>
   );

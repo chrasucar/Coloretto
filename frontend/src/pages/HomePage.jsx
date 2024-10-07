@@ -1,39 +1,154 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import Footer from '../components/Footer';
+import 'swiper/swiper-bundle.css';
 import '../css/HomePage.css';
+import '../css/Footer.css';
+
+import mosquito from '../assets/gifs/mosquito.gif';
+import chameleonBlue from '../assets/cards/chameleonBlue.png';
+import chameleonYellow from '../assets/cards/chameleonYellow.png';
+import chameleonRed from '../assets/cards/chameleonRed.png';
+import chameleonOrange from '../assets/cards/chameleonOrange.png';
+
+import dinamica from '../assets/gifs/dinamica.gif';
+import multijugador from '../assets/gifs/multijugador.gif';
+import chat from '../assets/gifs/chat.gif';
+import mantis from '../assets/gifs/mantis.gif';
 
 function HomePage() {
+  const [visibleSection, setVisibleSection] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sectionHeight = window.innerHeight;
+      const currentScroll = window.scrollY;
+      const currentSection = Math.floor(currentScroll / sectionHeight);
+
+      if (currentSection !== visibleSection) {
+        setVisibleSection(currentSection);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [visibleSection]);
+
+  const getSectionClass = (sectionIndex) => {
+    return visibleSection === sectionIndex ? 'visible' : 'hidden';
+  };
+
   return (
     <div className="home-page">
-      <h1>Bienvenido a Coloretto</h1>
-      <p>
-        ¡Prepárate para disfrutar de <strong>Coloretto</strong>, un juego de cartas estratégico y emocionante para <strong>2 a 5 jugadores</strong>! 
-        Este juego reta a coleccionar las mejores combinaciones de colores, pero ¡cuidado con acumular más de tres, o te costará puntos!
-      </p>
+      <section id="intro" className={getSectionClass(0)}>
+        <div className="text-and-slider">
+          <div className="mosquito-container">
+            <img src={mosquito} alt="Mosquito" className="mosquito-gif" />{' '}
+          </div>
+          <h2 className="glow">¡Bienvenido, jugador!</h2>
+          <h3>Prepárate para una nueva aventura</h3>
+          <div className="text-container">
+            <h4 className="description">
+              Reta a coleccionar las mejores combinaciones de colores, pero,
+              cuidado con acumular más de tres, ¡o te costará puntos!
+            </h4>
+          </div>
 
-      <h2>Te espera los siguientes aspectos:</h2>
-      <ul>
-        <li><strong>Partidas dinámicas:</strong> Las decisiones rápidas y estratégicas te mantendrán enganchado mientras tratas de acumular los colores correctos.</li>
-        <li><strong>Juego multijugador:</strong> Juega con amigos o compite con otros jugadores online. La opción de jugar con usuarios automáticos la tienes disponible, ¡Hasta 5 jugadores por partida!</li>
-        <li><strong>Chat en vivo:</strong> Usa nuestro chat general para conversar con otros jugadores mientras navegas por el juego, discute estrategias, o simplemente diviértete.</li>
-        <li><strong>Chat privado en cada partida:</strong> Además del chat general, cada partida cuenta con su propio chat privado para que puedas comunicarte directamente con los jugadores en tu mesa. ¡Perfecto para negociar y planear tu estrategia!</li>
-      </ul>
+          <Swiper
+            spaceBetween={50}
+            slidesPerView={3}
+            centeredSlides={true}
+            loop={true}
+            grabCursor={true}
+            initialSlide={3}
+            className="card-slider"
+          >
+            <SwiperSlide key={0}>
+              <img
+                src={chameleonBlue}
+                alt="Carta Azul"
+                className="chameleon-card"
+              />
+            </SwiperSlide>
+            <SwiperSlide key={1}>
+              <img
+                src={chameleonYellow}
+                alt="Carta Amarilla"
+                className="chameleon-card"
+              />
+            </SwiperSlide>
+            <SwiperSlide key={2}>
+              <img
+                src={chameleonRed}
+                alt="Carta Roja"
+                className="chameleon-card"
+              />
+            </SwiperSlide>
+            <SwiperSlide key={3}>
+              <img
+                src={chameleonOrange}
+                alt="Carta Naranja"
+                className="chameleon-card"
+              />{' '}
+            </SwiperSlide>
+          </Swiper>
+        </div>
+      </section>
 
-      <h2>¿Cómo jugar?</h2>
-      <p>
-        No te preocupes si es tu primera vez, <strong>Coloretto</strong> es fácil de aprender pero difícil de dominar. En cada turno, debes decidir si revelar una nueva carta o tomar una columna de cartas en juego. ¡Solo contarás puntos positivos por tres colores, pero cualquier otro te restará!
-      </p>
-      <p>
-        ¿Tienes dudas? Puedes visitar nuestras <a href="/faqs">Preguntas Frecuentes</a> para obtener más detalles sobre las reglas del juego, el sistema de puntuación y estrategias para ganar.
-      </p>
+      <section id="features" className={getSectionClass(1)}>
+        <h2 className="glow">Te encontrarás ante:</h2>
+        <ul>
+          <li>
+            <strong>Partidas dinámicas:</strong>
+            <div>
+              <p>
+                Las decisiones rápidas y estratégicas son clave mientras tratas
+                de acumular los colores correctos.
+              </p>
+            </div>
+            <img src={dinamica} alt="Partidas dinámicas" />
+          </li>
+          <li>
+            <strong>Juego multijugador:</strong>
+            <div>
+              <p>Juega con amigos o compite con otros jugadores online.</p>
+            </div>
+            <img src={multijugador} alt="Juego multijugador" />
+          </li>
+          <li>
+            <strong>Chat general y privado:</strong>
+            <div>
+              <p>
+                Usa nuestro chat general para conversar con otros jugadores.
+                Además, tendrás uno privado en la partida que estés unido.
+              </p>
+            </div>
+            <img src={chat} alt="Chat en vivo y privado" />
+          </li>
+        </ul>
+      </section>
 
-      <h2>¿Listo para jugar?</h2>
-      <p>
-        ¡Únete a una partida o crea la tuya propia! Disfruta de la competitividad en tiempo real con tus amigos o con otros jugadores de la comunidad. ¡No olvides usar el chat para interactuar y mejorar la experiencia!
-      </p>
-
-      <p>
-        <em>Nota:</em> Esta es una fase de prueba, y la versión actual del juego está en desarrollo. Si encuentras algún problema o tienes sugerencias, no dudes en comunicárnoslo. ¡Estamos mejorando continuamente la experiencia para ti!
-      </p>
+      <section id="faqs" className={getSectionClass(2)}>
+        <div className="mantis-container">
+          <img src={mantis} alt="Mantis" className="mantis-gif" />
+        </div>
+        <div className="faq-title">
+          <h2 className="glow">¿Dudas?</h2>
+        </div>
+        <div className="faq-contents">
+          <p>
+            Puedes visitar nuestras{' '}
+            <a href="/faqs" className="faq-link">
+              Preguntas Frecuentes
+            </a>{' '}
+            para obtener más detalles.
+          </p>
+        </div>
+      </section>
+      <Footer />
     </div>
   );
 }

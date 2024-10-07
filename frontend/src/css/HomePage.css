@@ -1,48 +1,366 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
+  background: url('../assets/background/jungle.jpg') no-repeat center center fixed;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+section {
+  font-size: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.visible {
+  opacity: 1;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Introducción */
+
+#intro {
+  margin-top: 5%;
+  min-height: 100vh;
+  color: #ffffffe8;
+  padding: 40px 20px;
+  font-size: 20px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-family: 'Baloo', cursive;
+  text-align: left;
+  transition: opacity 0.5s ease;
+}
+
+#intro .glow {
+  font-size: 65px;
+}
+
+#intro h3 {
+  font-size: 40px;
+  margin-top: 10px;
+}
+
+#intro .text-container {
+  flex: 1;
+  max-width: 600px;
+  margin-top: 5%;
+}
+
+.mosquito-gif {
+  width: 100px;
+  height: auto;
+  display: block;
+  margin-top: 100%;
+}
+
+#intro .description {
+  margin: 10px 0;
+  color: #28a745;
+}
+
+.text-and-slider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider-container {
+  flex: 1;
+  overflow: hidden;
+}
+
+.card-slider {
+  width: 80%;
+  height: 300px;
+  border-radius: 20%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+  margin-top: 5%;
+}
+
+.chameleon-card {
+  margin-left: 20px;
+  height: 100%;
+  width: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.swiper-slide {
+  opacity: 0.7;
+  transform: rotateY(15deg) scale(0.9);
+  margin: 0;
+  padding: 0;
+}
+
+.swiper-wrapper {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.swiper-slide-active {
+  opacity: 1;
+  transform: rotateY(0deg) scale(1);
+}
+
+.swiper-slide-next {
+  opacity: 0.8;
+  transform: rotateY(-10deg) scale(0.95);
+}
+
+/* Características */
+
+.glow {
+  color: #ffffffd4;
+  text-align: center;
+  animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  0% {
+    text-shadow:
+      0 0 4px green,
+      0 0 8px green,
+      0 0 12px lime;
+  }
+  100% {
+    text-shadow:
+      0 0 10px green,
+      0 0 20px green,
+      0 0 30px lime;
+  }
+}
+
+#features {
+  padding: 50px 20px;
+  font-family: 'Baloo', cursive;
+}
+
+#features ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 30px;
+}
+
+#features li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff9f;
+}
+
+#features li div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#features strong {
+  grid-column: 1 / -1;
+  font-size: 20px;
+  color: #333;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#features li p {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+  text-align: center;
+  margin-left: 10%;
+}
+
+#features li img {
+  width: 100px;
+  height: auto;
+  border-radius: 10px;
+}
+
+#features li:hover {
+  background-color: #fffffff0;
+  transform: scale(1.05);
+  transition: 0.3s ease;
+}
+
+#features li:hover {
+  background-color: #fffffff0;
+  transform: scale(1.05);
+  transition: 0.3s ease;
+}
+
+/* Preguntas frecuentes */
+
+#faqs {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-family: 'Baloo', cursive;
+}
+
+.mantis-gif {
+  width: 200px;
+  height: auto;
+  margin-top: 5%;
+}
+
+#faqs p {
+  font-size: 20px;
+  line-height: 1.5;
+  color: #dedede;
+}
+
+.faq-link {
+  color: #03a82f;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.faq-link:hover {
+  color: #0056b3;
+}
+
+.faq-link:active {
+  color: #800080;
+}
+
+.faq-link.active {
+  color: #800080;
+}
+
+/* Diseño responsive */
+
+@media (min-width: 1200px) {
+  #faqs {
+    padding: 20px;
+    margin-top: 5%; 
+    margin-bottom: 5%;
+  }
+}
+
+@media (max-width: 1200px) {
+
+  /* Introducción */
+
+  .text-and-slider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #intro .text-container {
+    flex: 1;
+    max-width: 600px;
+    text-align: center;
+    margin-top: 13%;
+  }
+
+  .card-slider {
+    width: 20%;
+  }
+
+  #faqs {
+    padding: 20px;
+    margin-top: 5%;
+    margin-bottom: 5%;
+  }
+
+  #faqs p {
+    font-size: 18px;
+  }
+
+  .mantis-gif {
+    width: 150px; 
+  }
+}
+
+@media (min-width: 768px) {
+
+  /* Introducción */
+
+  #intro {
+    min-height: auto;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #intro .text-container {
+    max-width: 90%;
+    padding: 0;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .text-and-slider {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .slider-container {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .card-slider {
+    width: 40%;
+    height: 250px;
+    border-radius: 20%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    margin-top: 20px;
+  }
+
+  .mosquito-gif {
+    margin-top: 10px;
+    width: 80px;
+    height: auto;
+  }
+
+  .swiper-slide {
+    opacity: 0.7;
+    transform: rotateY(15deg) scale(0.9);
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
   }
-  
-  .home-page {
-    text-align: center;
-    padding: 20px;
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    margin: 0 auto;
+
+  .swiper-slide-active {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
   }
-  
-  .home-page h1 {
-    font-size: 2.5rem;
-    color: #3498db;
+
+  .swiper-slide-next {
+    opacity: 0.8;
+    transform: rotateY(-10deg) scale(0.95);
   }
-  
-  .home-page p {
-    font-size: 1.2rem;
-    color: #555;
-    line-height: 1.6;
-  }
-  
-  .home-page button {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .home-page button:hover {
-    background-color: #2980b9;
-  }
-  
+}

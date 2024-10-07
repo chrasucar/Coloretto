@@ -19,6 +19,7 @@ export enum UserValidationError {
   PasswordNotEqual = 'La nueva contraseña introducida no es igual a la verificación de la nueva contraseña.',
   
   CredentialInvalid = 'Credenciales incorrectas. Por favor, inténtelo de nuevo.',
+  FieldsRequired = 'Introduce el dato.',
   
   TokenInvalid = 'Token incorrecto.'
   

@@ -38,7 +38,7 @@ class GameStore {
 
   initSocket() {
     if (!this.socket) {
-      this.socket = io('http://localhost:3000');
+      this.socket = io('http://localhost:3000' || process.env.FRONTEND_URL);
 
       this.socket.on('connect', () => {});
       this.socket.on('disconnect', () => {});
@@ -325,4 +325,6 @@ async endScores(gameName) {
   }
 }
 
-export default new GameStore();
+const gameStoreInstance = new GameStore();
+
+export default gameStoreInstance;

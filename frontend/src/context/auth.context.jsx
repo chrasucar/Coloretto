@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import {
   registerRequest,
   loginRequest,
@@ -51,15 +51,7 @@ export const AuthProvider = ({ children }) => {
       setError([]);
       return true;
     } catch (error) {
-      const errorMsg =
-        error.response && error.response.data
-          ? error.response.data
-          : ['Error al registrarse.'];
-
-      setError(
-        Array.isArray(errorMsg) ? errorMsg : [errorMsg.message || errorMsg],
-      );
-      return false;
+      throw error;
     }
   };
 
@@ -74,12 +66,7 @@ export const AuthProvider = ({ children }) => {
       setError([]);
       return true;
     } catch (error) {
-      const errorMsg =
-        error.response && error.response.data && error.response.data.message
-          ? error.response.data.message
-          : 'Error al iniciar sesión.';
-      setError([errorMsg]);
-      return false;
+      throw error;
     }
   };
 
@@ -90,7 +77,7 @@ export const AuthProvider = ({ children }) => {
       const response = await getAllUsernames();
       setUsers(response.data);
     } catch (error) {
-      console.error('Error al obtener los nombres de usuario:', error);
+      return null;
     }
   };
 
@@ -135,19 +122,13 @@ export const AuthProvider = ({ children }) => {
 
   // Actualizar foto de perfil del usuario.
 
-  const handleUpdateProfilePicture = async (username, file, imageUrl) => {
+  const handleUpdateProfilePicture = async (username, file) => {
 
      const formData = new FormData();
 
      if (file) {
 
          formData.append('file', file);
-
-     }
- 
-     if (imageUrl) {
-
-         formData.append('imageUrl', imageUrl);
 
      }
 
@@ -210,20 +191,16 @@ export const AuthProvider = ({ children }) => {
         throw new Error('La contraseña actual introducida no es correcta.');
       }
     } catch (error) {
-      console.error('Error actualizando email:', error);
       throw error;
     }
   };
 
   // Actualizar contraseña.
 
-  const handleUpdatePassword = async (
-    username,
-    currentPassword,
-    newPassword,
-    verifyPassword,
-  ) => {
+  const handleUpdatePassword = async (username, currentPassword, newPassword, verifyPassword) => {
+
     try {
+
       const userResponse = await profileUser(username);
       const user = userResponse.data;
 
@@ -245,12 +222,13 @@ export const AuthProvider = ({ children }) => {
                 password: updatedUser.password,
               },
             }));
+
             await fetchUserProfile(username);
+
           } else {
             throw new Error(
-              'La nueva contraseña introducida no es igual a la verificación de la nueva contraseña.',
-            );
-          }
+              'La nueva contraseña introducida no es igual a la verificación de la nueva contraseña.');
+            }
         } else {
           throw new Error('La nueva contraseña es igual que la actual.');
         }
@@ -258,7 +236,6 @@ export const AuthProvider = ({ children }) => {
         throw new Error('La contraseña actual introducida no es correcta.');
       }
     } catch (error) {
-      console.error('Error actualizando la contraseña:', error);
       throw error;
     }
   };
@@ -297,7 +274,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     async function checkLogin() {
       const token = Cookies.get();
-
+      
       if (!token) {
         setAuthenticated(false);
         setUser(null);
@@ -346,7 +323,7 @@ export const AuthProvider = ({ children }) => {
       const response = await getAllMessages();
       setMessages(response.data);
     } catch (error) {
-      console.error('Error al obtener los mensajes:', error);
+      return null;
     }
   };
 
@@ -357,7 +334,7 @@ export const AuthProvider = ({ children }) => {
       const response = await getAllMessagesGame(gameName);
       setMessages(response.data);
     } catch (error) {
-      console.error('Error al obtener los mensajes:', error);
+      return null;
     }
     };
 

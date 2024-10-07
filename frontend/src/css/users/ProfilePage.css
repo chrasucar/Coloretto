@@ -1,0 +1,162 @@
+.profile-container {
+  width: 620px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 6% auto;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(to top, #282828, #101010);
+  background-position: center;
+  backdrop-filter: blur(10px);
+}
+
+h2 {
+  text-align: center;
+  font-size: 30px;
+  margin-top: 10px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-picture {
+  margin-bottom: 20px;
+}
+
+.photo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+  border: 2px solid #28a745;
+  cursor: pointer;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.connection-status p {
+  font-size: 18px;
+}
+
+.status-icon {
+  font-size: 24px;
+  color: #28a745;
+  margin-right: 8px;
+  margin-top: 10px;
+}
+
+.user-data {
+  display: inline-block;
+  text-align: left;
+  margin-top: 5px;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: rgba(30, 30, 30, 0.9);
+  border: 1px solid #333;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.6);
+  line-height: 1.6;
+}
+
+.update-icon {
+  margin-left: 10px;
+}
+
+.update-icon:hover {
+  color: #298296;
+}
+
+.user-data p {
+  margin: 10px 0;
+  font-size: 18px;
+  padding: 10px;
+  border-bottom: 1px solid #686868;
+  color: #dcdcdc;
+}
+
+.user-data p:last-child {
+  border-bottom: none;
+}
+
+.user-data p {
+  margin: 5px 0;
+  font-size: 18px;
+}
+
+.user-stats {
+  margin-top: 40px;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: rgba(40, 40, 40, 0.9);
+  border: 1px solid #444;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.7); 
+  text-align: center;
+  color: #ddd; 
+}
+
+.games {
+  margin: 10px 0;
+  color: #dcdcdc;
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s ease;
+}
+
+.user-stats .icon-game {
+  font-size: 27px;
+}
+
+.games:not(:last-child) {
+  margin-bottom: 10px;
+}
+
+.user-actions {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.user-actions .button-password {
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #ff99009b;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.user-actions .button-delete {
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #ff99009b;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.user-actions .button-password:hover {
+  background-color: #28a745;
+}
+
+.user-actions .button-delete:hover {
+  background-color: #dc1818;
+}
+

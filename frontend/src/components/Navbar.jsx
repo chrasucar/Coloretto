@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth.context';
 import '../css/Navbar.css';
+import camaleonGif from '../assets/gifs/camaleon1.gif';
 
 function Navbar() {
   const { authenticated, logout, user } = useAuth();
@@ -25,11 +26,9 @@ function Navbar() {
           : ''
       }
     >
-      {location.pathname !== '/auth/login' && (
         <h1>
-          <Link to="/">Coloretto</Link>
+          <Link to="/">Coloretto <img src = {camaleonGif} alt = "Camaleón animado 1" className = "camaleon"></img></Link>
         </h1>
-      )}
       <ul>
         {authenticated ? (
           <>
@@ -47,7 +46,7 @@ function Navbar() {
             </li>
             <li>
               <Link to="/" onClick={handleLogout}>
-                Cerrar Sesión
+                Cerrar sesión
               </Link>
             </li>
           </>

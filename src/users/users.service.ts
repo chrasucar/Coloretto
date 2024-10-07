@@ -42,21 +42,50 @@ export class UsersService {
     password: string,
     profilePicture: string,
   ): Promise<User> {
-    try {
-    const newUser = new this.userModel({
-      _id: new mongoose.Types.ObjectId(),
-      fullname,
-      username,
-      email,
-      password,
-      profilePicture
-    });
+  
+      // Validar la longitud de la contraseña.
+  
+      if (password.length < 8) {
+        throw new UserValidationException(
+          UserValidationError.PasswordShort,
+          HttpStatus.LENGTH_REQUIRED,
+        );
+      }
+  
+      // Validar si existe ya el usuario o no.
+  
+      const existingUserName = await this.findUserByUserName(username);
+  
+      if (existingUserName) {
+        throw new UserValidationException(
+          UserValidationError.UsernameTaken,
+          HttpStatus.CONFLICT,
+        );
+      }
+  
+      // Validar si existe ya el email o no.
+  
+      const existingUserEmail = await this.findUserByEmail(email);
+  
+      if (existingUserEmail) {
+        throw new UserValidationException(
+          UserValidationError.EmailTaken,
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const newUser = new this.userModel({
+        _id: new mongoose.Types.ObjectId(),
+        fullname,
+        username,
+        email,
+        password,
+        profilePicture
+      });
 
     return newUser.save();
-  } catch (error) {
-      throw new Error('Error creando el usuario: ' + error.message);
+    
   }
-}
 
   // Encontrar un usuario por su id.
 
@@ -153,7 +182,6 @@ export class UsersService {
       );
     }
 
-
     user.password = newPassword;
 
     await user.save();
@@ -165,7 +193,6 @@ export class UsersService {
   async updateProfilePicture(
     username: string,
     profilePicturePath: string,
-    url?: string,
   ) {
     const user = await this.userModel.findOne({ username });
 
@@ -176,13 +203,7 @@ export class UsersService {
       );
     }
 
-    if (url) {
-
-      // Si se proporciona una URL, se actualiza la foto de perfil con la URL.
-
-      user.profilePicture = url;
-
-    } else {
+    if (profilePicturePath) {
 
       // Si no se proporciona una URL, se actualiza la foto de perfil con la ruta del archivo.
 

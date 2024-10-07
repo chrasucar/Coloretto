@@ -3,8 +3,11 @@ import { useForm } from 'react-hook-form';
 import { useAuth } from '../../context/auth.context';
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../../css/RegisterPage.css';
+import '../../css/users/RegisterPage.css';
 import ModalSuccessRegister from '../../components/ModalSuccessRegister';
+
+import { FaHouseUser, FaUser, FaEnvelope } from "react-icons/fa";
+import { RiLockPasswordFill } from "react-icons/ri";
 
 function RegisterPage() {
   const {
@@ -19,80 +22,92 @@ function RegisterPage() {
 
   // Registrarse correctamente.
 
-  const handleRegisterSuccess = () => {
-    setLocalError(null);
-    setShowModal(true);
-    const timer = setTimeout(() => {
-      navigate('/auth/login');
-    }, 5000);
-    return () => clearTimeout(timer);
-  };
+  const onSubmit = async (values) => {
 
-  const onSubmit = handleSubmit(async (values) => {
     try {
-      const isSuccess = await signUp(values);
-      if (isSuccess) {
-        handleRegisterSuccess();
-      }
+
+      await signUp(values);
+      setLocalError(null);
+      setShowModal(true);
+      const timer = setTimeout(() => { navigate('/auth/login');}, 5000);
+      return () => clearTimeout(timer);
+
     } catch (error) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
+
+      if (error.response && error.response.data) {
+
         setLocalError(error.response.data.message);
+
       } else {
-        setLocalError('Ha ocurrido un error al procesar la solicitud.');
+
+        setLocalError("Ocurrió un error al registrarse.");
+
       }
     }
-  });
-
-  const Register = () => {
-    useEffect(() => {
-      if (authenticated) {
-        navigate('/');
-      }
-    });
-  
-    return null;
   };
+
+  useEffect(() => {
+    if (authenticated) {
+      navigate('/');
+    }
+  }, [authenticated, navigate]);
 
   return (
     <div className="register-container">
       <h2>Registro</h2>
-      {registerError.map((error, i) => (
-        <div key={i}>{error}</div>
-      ))}
-      <Register />
-      <form onSubmit={onSubmit}>
+       {Array.isArray(registerError) && registerError.length > 0 ? (
+        registerError.map((error, i) => (
+          <div key={i}>{error}</div>
+        ))
+      ) : (
+        registerError && <div>{registerError}</div>
+      )}
+      {localError && <p>{localError}</p>}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {errors.fullname && <p className='error'>{errors.fullname.message}</p>}
+        <div className = "inputs">
         <input
           type="text"
+          name="fullname"
           placeholder="Nombre y apellidos"
           {...register('fullname', {
-            required: true,
+            required: 'Por favor, introduce nombre y apellidos.',
             minLength: 3,
             maxLength: 30,
           })}
         />
-        {errors.fullname && <p>Nombre y apellidos requerido.</p>}
+        <FaHouseUser className="icon"/>
+        </div>
+        {errors.username && <p className='error'>{errors.username.message}</p>}
+        <div className = "inputs">
         <input
           type="text"
           placeholder="Usuario"
-          {...register('username', { required: true })}
+          name="username"
+          {...register('username', { required: 'Por favor, introduce un usuario.' })}
         />
-        {errors.username && <p>Usuario requerido.</p>}
+        <FaUser className="icon"/>
+        </div>
+        {errors.email && <p className='error'>{errors.email.message}</p>}
+        <div className = "inputs">
         <input
           type="email"
+          name="email"
           placeholder="Correo electrónico"
-          {...register('email', { required: true })}
+          {...register('email', { required: 'Por favor, introduce tu correo electrónico.' })}
         />
-        {errors.email && <p>Correo electrónico requerido.</p>}
+        <FaEnvelope className="icon" />
+        </div>
+        {errors.password && <p className='error'>{errors.password.message}</p>}
+        <div className = "inputs">
         <input
           type="password"
+          name="password"
           placeholder="Contraseña"
-          {...register('password', { required: true })}
+          {...register('password', { required: 'Por favor, introduce una contraseña.' })}
         />
-        {errors.password && <p>Contraseña requerida.</p>}
+        <RiLockPasswordFill className="icon"/>   
+        </div>
         <button type="submit">Registrarse</button>
       </form>
       <p>

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/auth.context';
 import { useParams, useNavigate } from 'react-router-dom';
-import '../../css/PasswordFormPage.css';
+import '../../css/users/PasswordFormPage.css';
+
+import { RiLockPasswordFill, RiLockPasswordLine } from "react-icons/ri";
+import { TbPasswordUser } from "react-icons/tb";
 
 function PasswordFormPage() {
 
@@ -9,25 +12,32 @@ function PasswordFormPage() {
   const [newPassword, setNewPassword] = useState('');
   const [password, setPassword] = useState('');
   const [verifyPassword, setVerifyPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [error, setError] = useState(null);
   const { username } = useParams();
   const navigate = useNavigate();
 
   // Cambiar de contraseña correctamente.
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
-    setErrorMessage(null);
+
     try {
-      await handleUpdatePassword(
-        username,
-        password,
-        newPassword,
-        verifyPassword,
-      );
+
+      const res = await handleUpdatePassword(username, password, newPassword, verifyPassword);
+
       navigate(`/users/profile/${username}`);
+
+      if (!res) {
+
+        throw new Error('Debe proporcionar una contraseña válida.');
+
+      }
+
     } catch (error) {
-      setErrorMessage(error.message);
+
+      setError(error.message);
+
     }
   };
 
@@ -40,39 +50,42 @@ function PasswordFormPage() {
   return (
     <div className="password-form">
       <h2>Actualizar contraseña</h2>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      {error && <p className='error'>{error}</p>}
       <form onSubmit={handleSubmit}>
-        <label>
-          Contraseña actual:
+          <div className = "inputsPasswordUpdate">
           <input
             type="password"
+            placeholder='Contraseña actual'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </label>
-        <label>
-          Nueva contraseña:
+          <RiLockPasswordFill className="icon"/> 
+          </div>
+          <div className = "inputsPasswordUpdate">
           <input
             type="text"
             value={newPassword}
+            placeholder='Nueva contraseña'
             onChange={(e) => setNewPassword(e.target.value)}
             required
           />
-        </label>
-        <label>
-          Verifica la nueva contraseña:
+          <TbPasswordUser className="icon"/> 
+          </div>
+          <div className = "inputsPasswordUpdate">
           <input
             type="password"
             value={verifyPassword}
+            placeholder='Verifica la contraseña'
             onChange={(e) => setVerifyPassword(e.target.value)}
             required
           />
-        </label>
-        <button type="submit">Guardar cambios</button>
-        <button type="button" onClick={handleCancel}>
-          Cancelar
-        </button>
+          <RiLockPasswordLine className="icon"/> 
+          </div>
+        <div className="button-container">
+        <button type="submit" className='button-update'>Actualizar</button>
+        <button type="button" className='button-cancel' onClick={handleCancel}>Cancelar</button>
+        </div>
       </form>
     </div>
   );
