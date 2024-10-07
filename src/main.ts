@@ -14,11 +14,12 @@ async function bootstrap() {
 
   // Activar CORS para frontend
 
-  const frontendUrl = process.env.FRONTEND_URL;
-
   app.enableCors({
 
-    origin: frontendUrl, 
+    origin: [
+      'http://localhost:4000',
+      'http://chrasucar-coloretto.vercel.app'
+    ],
     credentials: true,
 
   });
