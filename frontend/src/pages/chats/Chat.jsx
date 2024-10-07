@@ -42,7 +42,7 @@ function Chat() {
   useEffect(() => {
 
     if (!socketRef.current) {
-      socketRef.current = io('http://localhost:3000' || process.env.FRONTEND_URL, {
+      socketRef.current = io('http://localhost:3000' || process.env.MONGODB_URI, {
         query: { userName: user.username, gameName },
       });
     }
