@@ -274,11 +274,11 @@ function Chat() {
     }, 3000);
 };
 
-  return (
-    <div className="chat-container">
-      <div className="chat-form-container">
+return (
+  <div className="chat-container">
+    <div className="messages-and-users">
       <div className="messages-section">
-        <ul className="message-list">
+        <div className="message-list">
           {messages.length > 0 ? (
             messages.map((msg) => (
               <li
@@ -289,6 +289,7 @@ function Chat() {
               >
                 <div className="message-text">
                   <div className="message-header">
+                  <img className='profile-pic' src={`http://localhost:3000/${user.profile.profilePicture}`} alt="Foto de perfil"/>
                     <span className="message-sender">{msg.sender}</span>
                     <span className="message-time">
                       {msg.timestamp ? formatTime(msg.timestamp) : ''}
@@ -327,46 +328,20 @@ function Chat() {
           ) : (
             <li>No hay mensajes.</li>
           )}
-        </ul>
         </div>
-
-        <div className="typing-indicator">
-          {gameName ? (
-            typingGameUsers.length > 0 ? (
-              `${typingGameUsers.join(', ')} está escribiendo...`
-            ) : null
-          ) : (
-            typingUsers.length > 0 ? (
-              `${typingUsers.join(', ')} está escribiendo...`
-            ) : null
-          )}
-        </div>
-
-        <form onSubmit={sendMessage} className="chat-form">
-        <div className="emoticon-container">
-          <button
-            type="button"
-            className="emoticon-button"
-            onClick={() => setShowEmoticonPicker(!showEmoticonPicker)}
-          >
-            <i className="fas fa-smile"></i>
-          </button>
-          {showEmoticonPicker && (
-            <div className="emoticon-picker" ref={emoticonPickerRef}>
-              <Emoticon onSelect={handleEmoticonClick} />
-            </div>
-          )}
-          </div>
-          <input
-            id="messageInput"
-            type="text"
-            value={input}
-            onChange={handleInputChange}
-            placeholder="Escribe un mensaje..."
-          />
-          <button type="submit">Enviar</button>
-        </form>
+        <div className={`typing-indicator ${typingGameUsers.length > 0 || typingUsers.length > 0 ? 'visible' : ''}`}>
+      {gameName ? (
+        typingGameUsers.length > 0 ? (
+          `${typingGameUsers.join(', ')} está escribiendo...`
+        ) : null
+      ) : (
+        typingUsers.length > 0 ? (
+          `${typingUsers.join(', ')} está escribiendo...`
+        ) : null
+      )}
+    </div>
       </div>
+      
 
       <div className="connected-users-panel">
         <h2>Usuarios</h2>
@@ -385,7 +360,34 @@ function Chat() {
         </ul>
       </div>
     </div>
-  );
+    
+    <form onSubmit={sendMessage} className="chat-form">
+  <div className="input-container">
+    <input
+      id="messageInput"
+      type="text"
+      className="chatInput"
+      value={input}
+      onChange={handleInputChange}
+      placeholder="Escribe un mensaje..."
+    />
+    <button
+      type="button"
+      className="emoticon-button"
+      onClick={() => setShowEmoticonPicker(!showEmoticonPicker)}
+    >
+      <i className="fas fa-smile"></i>
+    </button>
+  </div>
+  <button className = "submitChat" type="submit">Enviar</button>
+  {showEmoticonPicker && (
+    <div className="emoticon-picker" ref={emoticonPickerRef}>
+      <Emoticon onSelect={handleEmoticonClick} />
+    </div>
+  )}
+</form>
+  </div>
+);
 }
 
 export default Chat;

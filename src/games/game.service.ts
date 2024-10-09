@@ -67,7 +67,7 @@ export class GameService {
       aiPlayers: aiPlayers,
       createdAt: new Date(),
       updatedAt: new Date(),
-      preparationTime: new Date(Date.now() + 5000) 
+      preparationTime: new Date(Date.now() + 10000) 
     });
   
     const savedGame = await newGame.save();
@@ -954,7 +954,7 @@ export class GameService {
     
     // Comodínes.
 
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 2; i++) {
       deck.push({
         color: 'wild',
         isEndRound: false,
@@ -963,7 +963,7 @@ export class GameService {
 
     // Comodín dorado.
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 1; i++) {
       deck.push({
         color: 'golden_wild',
         isEndRound: false,
@@ -1073,7 +1073,7 @@ export class GameService {
 
     if (endRoundCard) {
 
-        finalDeck.splice(5, 0, endRoundCard);
+        finalDeck.splice(3, 0, endRoundCard);
 
     }
 
@@ -1173,7 +1173,7 @@ export class GameService {
 
   // Obtener el estado actual del juego.
 
-  private async getCurrentGame(gameName: string): Promise<GameDocument> {
+  async getCurrentGame(gameName: string): Promise<GameDocument> {
 
     const game = await this.gameModel.findOne({ gameName }).exec();
 
@@ -1212,8 +1212,7 @@ export class GameService {
     await game.save();
 
     this.gameGateway.emitNextTurn(game);
-
-    }
+}
 
   // Preparar la partida una vez creada después de 1 minuto.
 

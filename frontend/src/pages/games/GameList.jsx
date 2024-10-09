@@ -227,12 +227,12 @@ const GameList = observer(() => {
                           game.players.length === 0 ? (
                             <span className="game-status">
                               {' '}
-                              - Eliminando...
+                              Eliminando...
                             </span>
                           ) : (
                             <span className="game-status">
                               {' '}
-                              - Partida finalizada, esperando al abandono de
+                              Partida finalizada, esperando al abandono de
                               jugadores...
                             </span>
                           )

@@ -1,0 +1,249 @@
+body {
+  margin: 0;
+}
+
+.game-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  perspective: 1000px;
+  background: url('../../assets/background/backgroundGame.jpg') no-repeat center center fixed;
+  background-size: cover;
+  padding-top: 60px;
+  box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.5);
+  filter: blur(0.8);
+}
+
+.game-details {
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  margin: 20px;
+  transform: translateZ(10px);
+  transition:
+    box-shadow 0.3s,
+    transform 0.3s;
+}
+
+.game-details:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  transform: translateZ(15px);
+}
+
+.game-details h4 {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 10px;
+  margin-left: 10px;
+}
+
+.game-details .game-board {
+  display: flex;
+  justify-content: space-between;
+}
+
+.game-board {
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+  flex-wrap: wrap; 
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateZ(5px);
+  width: 100%;
+  height: 100%;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.game-board:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transform: translateZ(10px);
+}
+
+.left-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition:
+    box-shadow 0.3s,
+    transform 0.3s;
+}
+
+.left-container:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.deck-container {
+  position: relative; 
+  width: 150px;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 50%;
+}
+
+
+.deck {
+  width: 100%;
+  height: auto;
+  transition: opacity 0.3s; 
+}
+
+.top-card {
+  transform: translateY(-10px);
+}
+
+.columns-container {
+  display: flex; 
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.column {
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  width: 25%;
+  min-width: 200px;
+  margin: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.column-name {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.column.selected {
+  border: 3px dashed #0244c9;
+  box-shadow: 0 14px 20px rgba(0, 19, 128, 0.4);
+  transform: scale(1.05);
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cards img {
+  width: 100px;
+  height: auto;
+  margin: 5px;
+  transition: transform 0.2s;
+}
+
+.cards img:hover {
+  transform: scale(1.1);
+}
+
+.right-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.player-card-container {
+  border: 2px solid #fff;
+  border-radius: 10%;
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.player-collection,
+.wild-cards,
+.player-summary {
+  margin: 10px 0; 
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 auto;
+  width: 100%; 
+}
+
+.player-collection h4,
+.wild-cards h4,
+.player-summary h4 {
+  text-align: center;
+  color: #fff;
+}
+
+.player-collection img,
+.wild-cards img,
+.player-summary img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  margin: 5px;
+  transition: transform 0.2s;
+}
+
+
+.player-collection img:hover,
+.wild-cards img:hover,
+.player-summary img:hover {
+  transform: scale(1.1);
+}
+
+.game-actions {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;
+  margin: 20px 0;
+}
+
+.game-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
+  margin: 20px 0;
+}
+
+.game-actions .buttonGamePage {
+  margin: 15px 0;
+  padding: 15px 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: #0244c9;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 200px; 
+  font-size: 1.1rem;
+}
+
+.game-actions .buttonGamePage:hover {
+  background-color: #368a29;
+}
+
+.trophy-icon {
+  width: 50px;
+  height: auto; 
+  margin-bottom: 10px;
+}

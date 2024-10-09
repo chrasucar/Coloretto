@@ -65,7 +65,7 @@ function RegisterPage() {
       {localError && <p>{localError}</p>}
       <form onSubmit={handleSubmit(onSubmit)}>
         {errors.fullname && <p className='error'>{errors.fullname.message}</p>}
-        <div className = "inputs">
+        <div className = "inputsRegister">
         <input
           type="text"
           name="fullname"
@@ -79,7 +79,7 @@ function RegisterPage() {
         <FaHouseUser className="icon"/>
         </div>
         {errors.username && <p className='error'>{errors.username.message}</p>}
-        <div className = "inputs">
+        <div className = "inputsRegister">
         <input
           type="text"
           placeholder="Usuario"
@@ -89,7 +89,7 @@ function RegisterPage() {
         <FaUser className="icon"/>
         </div>
         {errors.email && <p className='error'>{errors.email.message}</p>}
-        <div className = "inputs">
+        <div className = "inputsRegister">
         <input
           type="email"
           name="email"
@@ -99,7 +99,7 @@ function RegisterPage() {
         <FaEnvelope className="icon" />
         </div>
         {errors.password && <p className='error'>{errors.password.message}</p>}
-        <div className = "inputs">
+        <div className = "inputsRegister">
         <input
           type="password"
           name="password"

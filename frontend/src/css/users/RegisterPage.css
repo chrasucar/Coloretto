@@ -29,7 +29,7 @@ h2 {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.register-container .inputs {
+.register-container .inputsRegister {
 
   width: 100%;
   height: 50px;
@@ -38,12 +38,12 @@ h2 {
   align-items: center;
 }
 
-.inputs input {
+.inputsRegister input {
   width: 100%;
   height: 80%;
 }
 
-.inputs .icon {
+.inputsRegister .icon {
   position: absolute;
   right: 85px;
   font-size: 12px;

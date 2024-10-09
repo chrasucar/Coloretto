@@ -38,8 +38,6 @@ function PrivateRoute() {
       <div className="loading-container">
       <div className="circle">
         <h1>{percentage}%</h1>
-        <p className="count">
-        </p>
       </div>
       </div>
     );

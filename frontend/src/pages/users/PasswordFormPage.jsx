@@ -55,6 +55,7 @@ function PasswordFormPage() {
           <div className = "inputsPasswordUpdate">
           <input
             type="password"
+            name="password"
             placeholder='Contraseña actual'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -65,6 +66,7 @@ function PasswordFormPage() {
           <div className = "inputsPasswordUpdate">
           <input
             type="text"
+            name="newPassword"
             value={newPassword}
             placeholder='Nueva contraseña'
             onChange={(e) => setNewPassword(e.target.value)}
@@ -75,6 +77,7 @@ function PasswordFormPage() {
           <div className = "inputsPasswordUpdate">
           <input
             type="password"
+            name="verifyPassword"
             value={verifyPassword}
             placeholder='Verifica la contraseña'
             onChange={(e) => setVerifyPassword(e.target.value)}

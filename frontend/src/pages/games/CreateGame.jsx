@@ -71,6 +71,7 @@ const CreateGame = observer(() => {
       <div className = "inputs">
       <input 
         type="text" 
+        name="nameGame"
         placeholder="Nombre de la partida" 
         value={gameName} 
         onChange={(e) => setGameName(e.target.value)} 
@@ -105,7 +106,7 @@ const CreateGame = observer(() => {
       <div className = "inputsLevel">
         <label>
           Nivel de dificultad:
-          <select value={difficultyLevel} onChange={(e) => setDifficultyLevel(e.target.value)}>
+          <select name="level" value={difficultyLevel} onChange={(e) => setDifficultyLevel(e.target.value)}>
             <option className="option" value="Básico">Básico</option>
             <option className="option" value="Experto">Experto</option>
           </select>
