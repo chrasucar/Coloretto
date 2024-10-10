@@ -17,7 +17,7 @@ async function bootstrap() {
 
     origin: [
       'http://localhost:4000',
-      'https://chrasucar-coloretto.vercel.app'
+      'https://coloretto.vercel.app'
     ],
     credentials: true,
 
