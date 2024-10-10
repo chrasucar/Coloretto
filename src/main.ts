@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import * as passport from 'passport';
-import * as cookieParser from 'cookie-parser';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
@@ -18,15 +17,13 @@ async function bootstrap() {
 
     origin: [
       'http://localhost:4000',
-      'http://chrasucar-coloretto.vercel.app'
+      'https://chrasucar-coloretto.vercel.app'
     ],
     credentials: true,
 
   });
 
   // Activar sockets y cookies del token.
-
-  app.use(cookieParser());
 
   app.useWebSocketAdapter(new IoAdapter(app));
 
