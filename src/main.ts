@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  // Activar CORS para frontend
+  // Activar CORS para frontend.
 
   app.enableCors({
 
