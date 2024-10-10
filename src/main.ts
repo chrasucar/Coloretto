@@ -16,7 +16,6 @@ async function bootstrap() {
   app.enableCors({
 
     origin: [
-      'http://localhost:4000',
       'https://coloretto.vercel.app'
     ],
     credentials: true,
@@ -26,11 +25,6 @@ async function bootstrap() {
   // Activar sockets y cookies del token.
 
   app.useWebSocketAdapter(new IoAdapter(app));
-
-  const port = process.env.PORT || 3000;
-
-  await app.listen(port);
-
 }
 
 bootstrap();
