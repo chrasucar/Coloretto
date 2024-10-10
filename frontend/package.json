@@ -27,7 +27,8 @@
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "swiper": "^11.1.14",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "homepage": "."
   },
   "scripts": {
     "start": "react-scripts start",
