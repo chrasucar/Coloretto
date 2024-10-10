@@ -33,6 +33,7 @@ import Questions from './pages/faqs/Questions';
 function App() {
   
   return (
+    
     <AuthProvider>
     <BrowserRouter>
     <GameProvider>
