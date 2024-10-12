@@ -38,7 +38,7 @@ class GameStore {
 
   initSocket() {
     if (!this.socket) {
-      this.socket = io(process.env.MONGODB_URI);
+      this.socket = io(process.env.FRONTEND_URL);
 
       this.socket.on('connect', () => {});
       this.socket.on('disconnect', () => {});

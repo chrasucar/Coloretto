@@ -6,7 +6,7 @@ import { User, UserDocument } from '../users/user.schema';
 import { CreateGameDto } from './dto/create-game-dto';
 import { GameGateway } from './game.gateway';
 import { Card, CardDocument, Column, ColumnDocument } from './card/card.schema';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { AiService } from './game.ai';
 
 @Injectable()

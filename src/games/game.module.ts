@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Game, GameSchema } from './game.schema';
 import { GameService } from './game.service';
 import { GameController } from './game.controller';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from '../users/users.module';
 import { GameGateway } from './game.gateway';
 import { Card, CardSchema, Column, ColumnSchema } from './card/card.schema';
 import { AiModule } from './ai.module';

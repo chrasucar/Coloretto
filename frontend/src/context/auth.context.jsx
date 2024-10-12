@@ -340,8 +340,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
 
-    fetchAllUsernames();
-
     if(gameName) {
 
       fetchAllMessagesGame(gameName);
@@ -360,7 +358,6 @@ export const AuthProvider = ({ children }) => {
       value={{
         signUp,
         signIn,
-        fetchAllUsernames,
         fetchUserProfile,
         logout,
         updateProfilePicture,
