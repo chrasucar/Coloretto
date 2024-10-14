@@ -90,12 +90,18 @@ export class AuthController {
 
   @Post('verify-token')
   async verifyToken(@Req() req: Request, @Res() res: Response) {
-
     const { token } = req.cookies;
-    
-    const userData = await this.authService.verifyToken(token);
-
-    return res.status(HttpStatus.OK).json(userData);
+  
+    if (!token) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Token no proporcionado' });
+    }
+  
+    try {
+      const userData = await this.authService.verifyToken(token);
+      return res.status(HttpStatus.OK).json(userData);
+    } catch (error) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Token inválido' });
+    }
   }
 
   // Renovación de token
