@@ -17,12 +17,12 @@ const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const users_service_1 = require("./users.service");
 const auth_service_1 = require("./auth/auth.service");
-const multer_1 = require("multer");
-const path_1 = require("path");
+const upload_service_1 = require("./upload.service");
 let UsersController = class UsersController {
-    constructor(usersService, authService) {
+    constructor(usersService, authService, uploadService) {
         this.usersService = usersService;
         this.authService = authService;
+        this.uploadService = uploadService;
     }
     async getAllUsernames() {
         try {
@@ -57,7 +57,8 @@ let UsersController = class UsersController {
     async updateProfilePicture(username, file) {
         let filePath = '';
         if (file) {
-            filePath = `uploads/profile-pictures/${file.filename}`;
+            const fileUrl = await this.uploadService.uploadFile(file);
+            filePath = fileUrl;
         }
         else {
             throw new Error('Debe proporcionar un archivo válido.');
@@ -115,16 +116,7 @@ __decorate([
 ], UsersController.prototype, "changePassword", null);
 __decorate([
     (0, common_1.Put)('/profile/:username/update-profile-picture'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
-        storage: (0, multer_1.diskStorage)({
-            destination: './uploads/profile-pictures',
-            filename: (req, file, cb) => {
-                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                const ext = (0, path_1.extname)(file.originalname);
-                cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-            },
-        }),
-    })),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     __param(0, (0, common_1.Param)('username')),
     __param(1, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
@@ -141,6 +133,7 @@ __decorate([
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService,
-        auth_service_1.AuthService])
+        auth_service_1.AuthService,
+        upload_service_1.UploadService])
 ], UsersController);
 //# sourceMappingURL=users.controller.js.map

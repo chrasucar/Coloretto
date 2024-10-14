@@ -1,9 +1,11 @@
 import { UsersService } from './users.service';
 import { AuthService } from './auth/auth.service';
+import { UploadService } from './upload.service';
 export declare class UsersController {
     private readonly usersService;
     private readonly authService;
-    constructor(usersService: UsersService, authService: AuthService);
+    private readonly uploadService;
+    constructor(usersService: UsersService, authService: AuthService, uploadService: UploadService);
     getAllUsernames(): Promise<string[]>;
     getProfile(username: string): Promise<import("./user.schema").User>;
     register(fullname: string, username: string, email: string, password: string): Promise<{
