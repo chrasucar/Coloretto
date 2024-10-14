@@ -16,7 +16,7 @@ async function bootstrap() {
 
   app.enableCors({
 
-    origin: 'http://coloretto.vercel.app',
+    origin: 'https://coloretto.vercel.app',
     credentials: true,
 
   });
