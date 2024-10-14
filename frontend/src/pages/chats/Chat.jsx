@@ -41,11 +41,14 @@ function Chat() {
 
   useEffect(() => {
 
-    if (!socketRef.current) {
-      socketRef.current = io('https://coloretto-api.vercel.app', {
-        query: { userName: user.username, gameName },
-      });
-    }
+  if (!socketRef.current) {
+
+    socketRef.current = io('https://coloretto-api.vercel.app', {
+      query: { userName: user.username, gameName },
+      transports: ['websocket'],
+      withCredentials: true,
+    });
+  }
 
     const socket = socketRef.current;
 

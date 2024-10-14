@@ -38,16 +38,19 @@ class GameStore {
 
   initSocket() {
     if (!this.socket) {
-      this.socket = io('https://coloretto-api.vercel.app');
-
-      this.socket.on('connect', () => {});
-      this.socket.on('disconnect', () => {});
+      this.socket = io('https://coloretto-api.vercel.app', {
+        transports: ['websocket'],
+        withCredentials: true,
+      });
+  
+      this.socket.on('connect', () => console.log('Conectado al servidor.'));
+      this.socket.on('disconnect', () => console.log('Desconectado del servidor.'));
       this.socket.on('gameCreated', () => this.fetchGames());
       this.socket.on('gameUpdated', () => this.fetchGames());
       this.socket.on('gameDeleted', () => this.fetchGames());
       this.socket.on('playerJoined', () => this.fetchGames());
       this.socket.on('playerLeft', () => this.fetchGames());
-
+  
       this.socket.on('gamePrepared', () => {});
       this.socket.on('cardsAssigned', () => {});
       this.socket.on('nextTurn', () => {});
@@ -55,8 +58,8 @@ class GameStore {
       this.socket.on('columnTaken', () => {});
       this.socket.on('roundEnd', () => {});
       this.socket.on('gameFinalized', () => {});
-      };
     }
+  }
 
   // Obtener las partidas.
 
