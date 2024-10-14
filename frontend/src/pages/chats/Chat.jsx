@@ -43,7 +43,7 @@ function Chat() {
 
   if (!socketRef.current) {
 
-    socketRef.current = io('https://coloretto-api.vercel.app', {
+    socketRef.current = io('http://coloretto-api.vercel.app', {
       query: { userName: user.username, gameName },
       transports: ['websocket'],
       withCredentials: true,
