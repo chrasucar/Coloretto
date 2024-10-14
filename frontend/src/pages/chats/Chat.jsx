@@ -42,7 +42,7 @@ function Chat() {
   useEffect(() => {
 
     if (!socketRef.current) {
-      socketRef.current = io('http://coloretto-api.vercel.app', {
+      socketRef.current = io('https://coloretto-api.vercel.app', {
         query: { userName: user.username, gameName },
       });
     }
@@ -289,7 +289,7 @@ return (
               >
                 <div className="message-text">
                   <div className="message-header">
-                  <img className='profile-pic' src={`http://coloretto-api.vercel.app/${user.profile.profilePicture}`} alt="Foto de perfil"/>
+                  <img className='profile-pic' src={`https://coloretto-api.vercel.app/${user.profile.profilePicture}`} alt="Foto de perfil"/>
                     <span className="message-sender">{msg.sender}</span>
                     <span className="message-time">
                       {msg.timestamp ? formatTime(msg.timestamp) : ''}

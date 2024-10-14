@@ -38,7 +38,7 @@ class GameStore {
 
   initSocket() {
     if (!this.socket) {
-      this.socket = io('http://coloretto-api.vercel.app');
+      this.socket = io('https://coloretto-api.vercel.app');
 
       this.socket.on('connect', () => {});
       this.socket.on('disconnect', () => {});

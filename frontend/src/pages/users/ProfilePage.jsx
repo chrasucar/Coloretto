@@ -61,7 +61,7 @@ function ProfilePage() {
           <div className="user-details">
           <div className="profile-picture">
           {user.profile.profilePicture && (
-          <img className='photo' src={`http://coloretto-api.vercel.app/${user.profile.profilePicture}`} alt="Foto de perfil"
+          <img className='photo' src={`https://coloretto-api.vercel.app/${user.profile.profilePicture}`} alt="Foto de perfil"
           onClick={() => navigate(`/users/profile/${user.profile.username}/update-profile-picture`)}
           />)}
           <div className="connection-status">
