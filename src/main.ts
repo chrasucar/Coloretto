@@ -12,15 +12,6 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  // Activar CORS para frontend
-
-  app.enableCors({
-
-    origin: 'coloretto.vercel.app',
-    credentials: true,
-
-  });
-
   app.use(passport.initialize());
 
   // Activar sockets y cookies del token.
