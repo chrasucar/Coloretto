@@ -30,6 +30,9 @@ async function bootstrap() {
   app.useWebSocketAdapter(new IoAdapter(app));
 
 }
+
+bootstrap();
+
 // Encabezados JWT para el token.
 
 passport.use(new JwtStrategy({
@@ -41,5 +44,3 @@ passport.use(new JwtStrategy({
     done(null, { userId })
     
 }));
-
-export default bootstrap;
