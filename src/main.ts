@@ -15,12 +15,7 @@ async function bootstrap() {
 
   // Activar CORS para frontend
 
-  app.enableCors({
-
-    origin: 'https://coloretto-api.vercel.app',
-    credentials: true,
-
-  });
+  app.use(cors());
 
   app.use(passport.initialize());
 
