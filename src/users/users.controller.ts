@@ -57,7 +57,7 @@ export class UsersController {
     @Body('password') password: string,
   ) {
 
-    const profilePicture = 'uploads/profile-pictures/defecto.png';
+    const profilePicture = 'https://res.cloudinary.com/dtrjovuji/image/upload/v1728909714/wjdzq2scuj9fc16ctrnt.png';
 
     const user = await this.usersService.createUser(
       fullname,

@@ -18,7 +18,6 @@ async function bootstrap() {
     app.use(cookieParser());
     app.useWebSocketAdapter(new platform_socket_io_1.IoAdapter(app));
 }
-bootstrap();
 passport.use(new passport_jwt_1.Strategy({
     secretOrKey: process.env.JWT_SECRET || 'tfg2425',
     jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -26,4 +25,5 @@ passport.use(new passport_jwt_1.Strategy({
     const userId = payload.sub;
     done(null, { userId });
 }));
+exports.default = bootstrap;
 //# sourceMappingURL=main.js.map

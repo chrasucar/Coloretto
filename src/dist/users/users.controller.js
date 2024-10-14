@@ -41,7 +41,7 @@ let UsersController = class UsersController {
         return user;
     }
     async register(fullname, username, email, password) {
-        const profilePicture = 'uploads/profile-pictures/defecto.png';
+        const profilePicture = 'https://res.cloudinary.com/dtrjovuji/image/upload/v1728909714/wjdzq2scuj9fc16ctrnt.png';
         const user = await this.usersService.createUser(fullname, username, email, password, profilePicture);
         const token = await this.authService.generateToken(user._id);
         return { message: 'Se ha registrado correctamente.', token };
