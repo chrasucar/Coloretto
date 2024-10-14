@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { join } from 'path';
 import { config } from 'dotenv';
-import { ServeStaticModule } from '@nestjs/serve-static';
 
 // Importaciones de otros contextos
 
@@ -12,6 +10,7 @@ import { AuthModule } from './users/auth/auth.module';
 import { ChatGateway } from './chats/chat.gateway';
 import { MessageModule } from './messages/message.module';
 import { GameModule } from './games/game.module';
+import { UploadService } from './users/upload.service'; 
 
 config();
 
@@ -19,15 +18,11 @@ config();
   imports: [
     MongooseModule.forRoot(process.env.MONGODB_URI),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/uploads',
-    }),
     UsersModule,
     AuthModule,
     MessageModule,
     GameModule,
   ],
-  providers: [ChatGateway],
+  providers: [ChatGateway, UploadService],
 })
 export class AppModule {}
