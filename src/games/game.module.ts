@@ -18,5 +18,6 @@ import { AiModule } from './ai.module';
   ],
   providers: [GameService, GameGateway],
   controllers: [GameController],
+  exports: [GameService]
 })
 export class GameModule {}

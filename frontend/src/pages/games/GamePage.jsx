@@ -241,8 +241,8 @@ const GamePage = observer(() => {
       await store.leaveGame(selectedGame, user.username);
       toast.info(`${user.username} ha dejado la partida.`);
       setSelectedGame('');
-      await store.fetchGames();
       navigate('/play/join');
+      await store.fetchGames();
     } catch (error) {
       if (
         error.response &&
@@ -435,6 +435,7 @@ const GamePage = observer(() => {
         return endRound;
 
       // Mazo
+
       case 'deck':
         return reverse;
 

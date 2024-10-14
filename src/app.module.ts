@@ -2,14 +2,11 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
 import { config } from 'dotenv';
-import { AppController } from './app.controller';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
 // Importaciones de otros contextos
 
 import { User, UserSchema } from './users/user.schema';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './users/auth/auth.module';
 import { ChatGateway } from './chats/chat.gateway';
@@ -31,7 +28,6 @@ config();
     MessageModule,
     GameModule,
   ],
-  controllers: [UsersController, AppController],
-  providers: [UsersService, ChatGateway],
+  providers: [ChatGateway],
 })
 export class AppModule {}
