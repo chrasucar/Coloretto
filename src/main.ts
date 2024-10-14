@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import cors from 'cors';
 import * as dotenv from 'dotenv';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import * as passport from 'passport';
@@ -15,7 +14,12 @@ async function bootstrap() {
 
   // Activar CORS para frontend
 
-  app.use(cors());
+  app.enableCors({
+
+    origin: 'https://coloretto.vercel.app',
+    credentials: true,
+
+  });
 
   app.use(passport.initialize());
 
