@@ -29,6 +29,10 @@ async function bootstrap() {
 
   app.useWebSocketAdapter(new IoAdapter(app));
 
+  const port = 3001;
+
+  await app.listen(port);
+
 }
 
 bootstrap();
@@ -44,3 +48,4 @@ passport.use(new JwtStrategy({
     done(null, { userId })
     
 }));
+
