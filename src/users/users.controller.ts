@@ -12,14 +12,14 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { AuthService } from './auth/auth.service';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { UploadService } from './upload.service';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
+    private readonly uploadService: UploadService
   ) {}
 
   // Obtener todos los usuarios por nombre de usuario.
@@ -106,31 +106,20 @@ export class UsersController {
   // Actualizar foto de perfil.
 
   @Put('/profile/:username/update-profile-picture')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/profile-pictures',
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-        },
-      }),
-    }),
-  )
-  async updateProfilePicture(
-    @Param('username') username: string,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
+  @UseInterceptors(FileInterceptor('file'))
+
+  async updateProfilePicture(@Param('username') username: string, @UploadedFile() file: Express.Multer.File) {
 
     let filePath = '';
 
     if (file) {
 
-      filePath = `uploads/profile-pictures/${file.filename}`;
+      const fileUrl = await this.uploadService.uploadFile(file);
 
-    } else {
+      filePath = fileUrl;
+    } 
+    
+    else {
 
       throw new Error('Debe proporcionar un archivo válido.');
 
@@ -139,7 +128,7 @@ export class UsersController {
     const res = await this.usersService.updateProfilePicture(username, filePath);
 
     return { message: 'Foto de perfil actualizada correctamente.', res };
-    
+
   }
 
   // Eliminar un usuario
