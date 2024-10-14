@@ -38,8 +38,8 @@ class GameStore {
 
   initSocket() {
     if (!this.socket) {
-      this.socket = io('https://coloretto-api.vercel.app', {
-        transports: ['websocket', 'polling'],
+      this.socket = io('wss://coloretto-api.vercel.app', {
+        transports: ['websocket'],
         withCredentials: true,
       });
   

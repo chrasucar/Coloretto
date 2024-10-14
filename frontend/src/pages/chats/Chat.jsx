@@ -43,9 +43,9 @@ function Chat() {
 
   if (!socketRef.current) {
 
-    socketRef.current = io('https://coloretto-api.vercel.app', {
+    socketRef.current = io('wss://coloretto-api.vercel.app', {
       query: { userName: user.username, gameName },
-      transports: ['websocket', 'polling'],
+      transports: ['websocket'],
       withCredentials: true,
     });
   }
