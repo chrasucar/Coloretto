@@ -3,6 +3,6 @@ import { AiService } from './game.ai';
 
 @Module({
   providers: [AiService],
-  exports: [AiService], // Asegúrate de exportar el servicio
+  exports: [AiService],
 })
 export class AiModule {}

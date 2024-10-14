@@ -16,9 +16,9 @@ async function bootstrap() {
 
   app.enableCors({
 
-    origin: [
-      'https://coloretto.vercel.app'
-    ],
+    origin: ['https://coloretto.vercel.app'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 
   });
@@ -30,10 +30,6 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.useWebSocketAdapter(new IoAdapter(app));
-
-  const port = 3001;
-
-  await app.listen(port);
 
 }
 

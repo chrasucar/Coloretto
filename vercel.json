@@ -4,14 +4,9 @@
     {
       "src": "dist/main.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "frontend/dist/**/*",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "dist/main.js" },
-    { "src": "/(.*)", "dest": "/frontend/dist/$1" }
+    { "src": "/(.*)", "dest": "dist/main.js" }
   ]
 }
