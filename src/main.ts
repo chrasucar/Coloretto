@@ -5,6 +5,7 @@ import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import * as passport from 'passport';
 import * as cookieParser from 'cookie-parser';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import { Server } from 'socket.io';
 
 async function bootstrap() {
 
@@ -27,7 +28,18 @@ async function bootstrap() {
 
   app.use(passport.initialize());
 
-  app.useWebSocketAdapter(new IoAdapter(app));
+  app.useWebSocketAdapter(new (class extends IoAdapter {
+    createIOServer(port: number, options?: any): Server {
+      options = {
+        cors: {
+          origin: 'https://coloretto.vercel.app',
+          methods: ['GET', 'POST'],
+          credentials: true,
+        },
+      };
+      return super.createIOServer(port, options);
+    }
+  })(app));
 
   const port = process.env.PORT || 3001;
 
