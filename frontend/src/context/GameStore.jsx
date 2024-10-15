@@ -42,8 +42,8 @@ class GameStore {
         withCredentials: true,
       });
   
-      this.socket.on('connect', () => console.log('Conectado al servidor.'));
-      this.socket.on('disconnect', () => console.log('Desconectado del servidor.'));
+      this.socket.on('connect', () => {});
+      this.socket.on('disconnect', () => {});
       this.socket.on('gameCreated', () => this.fetchGames());
       this.socket.on('gameUpdated', () => this.fetchGames());
       this.socket.on('gameDeleted', () => this.fetchGames());
