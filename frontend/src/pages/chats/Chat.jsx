@@ -43,7 +43,7 @@ function Chat() {
 
   if (!socketRef.current) {
 
-    socketRef.current = io('http://coloretto-api.onrender.com', {
+    socketRef.current = io('https://coloretto-api.onrender.com', {
       query: { userName: user.username, gameName },
       withCredentials: true,
     });

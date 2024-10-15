@@ -38,7 +38,7 @@ class GameStore {
 
   initSocket() {
     if (!this.socket) {
-      this.socket = io('http://coloretto-api.onrender.com', {
+      this.socket = io('https://coloretto-api.onrender.com', {
         withCredentials: true,
       });
   
