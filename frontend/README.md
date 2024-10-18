@@ -49,6 +49,7 @@ Directamente desde el siguiente enlace:
    
    - La partida termina cuando se revela la **carta de fin de ronda** y todos los jugadores han tomado columna.  
    - Se calculan los puntos acumulados según las cartas recolectadas. ¡El jugador con más puntos gana! 🏆
+   - Abandona la partida cuando finalice.
 
 ---
 
