@@ -430,6 +430,7 @@ export class GameService {
     this.gameGateway.emitPlayerLeft(username);
   
     await game.save();
+    
   }
 
   // ----------------------------------------- Juego --------------------------------------
@@ -492,7 +493,7 @@ export class GameService {
     if (endRoundCardIndex !== -1) {
 
       const endRoundCard = shuffledDeck.splice(endRoundCardIndex, 1)[0];
-      shuffledDeck.splice(5, 0, endRoundCard);
+      shuffledDeck.splice(15, 0, endRoundCard);
 
     }
 
@@ -1073,7 +1074,7 @@ export class GameService {
 
     if (endRoundCard) {
 
-        finalDeck.splice(3, 0, endRoundCard);
+        finalDeck.splice(15, 0, endRoundCard);
 
     }
 

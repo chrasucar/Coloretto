@@ -46,6 +46,49 @@ const GamePage = observer(() => {
   const [selectedColumnIndex, setSelectedColumnIndex] = useState(null);
   const inactivityTimeout = 30000;
   const inactivityTimerRef = useRef(null);
+  const pollingIntervalRef = useRef(null);
+
+   // Polling para obtener los detalles del juego periódicamente.
+
+   const startPolling = () => {
+
+    pollingIntervalRef.current = setInterval(async () => {
+
+      try {
+
+        const updatedGameDetails = await store.getGameDetails(gameName);
+
+        if (updatedGameDetails) {
+
+          setGameDetails(updatedGameDetails);
+
+          if (updatedGameDetails.isFinished) {
+
+            setShowScoreTable(true);
+
+            toast.info('La partida ha finalizado.');
+
+            clearInterval(pollingIntervalRef.current);
+
+          }
+        }
+
+      } catch (error) {
+
+        console.error('Error al obtener los detalles del juego:', error);
+
+      }
+    }, 5000);
+  };
+
+  const stopPolling = () => {
+
+    if (pollingIntervalRef.current) {
+
+      clearInterval(pollingIntervalRef.current);
+
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -66,6 +109,7 @@ const GamePage = observer(() => {
             store.setCurrentGameName(gameName);
             store.setCurrentUserGame(gameName);
             setPrepTime(gameData.preparationTime);
+            startPolling();
           } else {
             toast.error('No se pudo obtener la información de la partida.');
             navigate('/play/join');
@@ -119,6 +163,7 @@ const GamePage = observer(() => {
       store.socket.off('playerLeft', handlePlayerLeft);
       store.socket.off('roundEnd', handleRevealCardFinal);
       store.socket.off('gameFinalized', handleFinalize);
+      stopPolling();
     };
   }, [store, gameName, user, navigate]);
 
@@ -457,10 +502,10 @@ const GamePage = observer(() => {
           <div className="game-board">
           <img src={trophy} alt="trofeo" className="trophy-icon" />
             <h4>Puntuaciones:</h4>
-            <ul>
+            <ul className='points'>
               {Object.entries(gameDetails.finalScores).map(
                 ([username, score]) => (
-                  <li key={username}>
+                  <li className='pointsUser' key={username}>
                     {username}: {score}
                   </li>
                 ),
