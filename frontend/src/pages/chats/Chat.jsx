@@ -291,8 +291,8 @@ return (
               >
                 <div className="message-text">
                   <div className="message-header">
-                  <img className='profile-pic' src={msg.senderProfilePicture} alt="Foto de perfil"/>
-                    <span className="message-sender">{msg.sender}</span>
+                  <img className='profile-pic' src={msg.sender.profilePicture} alt="Foto de perfil"/>
+                    <span className="message-sender">{msg.sender.username}</span>
                     <span className="message-time">
                       {msg.timestamp ? formatTime(msg.timestamp) : ''}
                     </span>
