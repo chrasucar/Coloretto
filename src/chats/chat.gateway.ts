@@ -10,6 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Message } from 'src/messages/message.schema';
 import { MessagesService } from '../messages/message.service';
+import { User } from 'src/users/user.schema';
 
 @WebSocketGateway({
   cors: { origin: '*' },
@@ -78,7 +79,7 @@ export class ChatGateway
 
   @SubscribeMessage('message')
   async handleMessage(
-    @MessageBody() message: { sender: string; text: string, gameName?: string },
+    @MessageBody() message: { sender: User; text: string, gameName?: string },
   ) {
 
     const references = this.extractReferences(message.text);
