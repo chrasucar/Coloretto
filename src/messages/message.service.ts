@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from 'src/users/user.schema';
 import { Message, MessageDocument } from './message.schema';
 
 @Injectable()
@@ -13,15 +12,12 @@ export class MessagesService {
   // Crear mensaje.
 
   async createMessage(
-    sender: User,
+    sender: string,
     text: string,
     references: string[] = [],
     gameName?: string,
   ): Promise<Message> {
-    const newMessage = new this.messageModel({ sender: {
-      username: sender.username,
-      profilePicture: sender.profilePicture,
-    }, text, references, gameName });
+    const newMessage = new this.messageModel({ sender, text, references, gameName });
     return newMessage.save();
   }
 
@@ -81,7 +77,7 @@ export class MessagesService {
   async getMessagesForUser(username: string): Promise<Message[]> {
     return this.messageModel
       .find({
-        $or: [{ 'sender.username': username }, { mentions: username }],
+        $or: [{ sender: username }, { mentions: username }],
       })
       .exec();
     }
