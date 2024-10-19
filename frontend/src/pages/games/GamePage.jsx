@@ -56,8 +56,8 @@ const GamePage = observer(() => {
 
     const fetchData = async () => {
       if (gameName) {
+        await store.fetchGames();
         try {
-          await store.fetchGames();
           const gameData = await store.getGameDetails(gameName);
 
           if (gameData) {
