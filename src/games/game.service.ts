@@ -78,12 +78,13 @@ export class GameService {
 
   // Encontrar una partida por su nombre.
 
-  async findGameByName(gameName: string): Promise<Game> {
+  async findGameByName(gameName: string): Promise<Game | null> {
+    
     const game = await this.gameModel.findOne({ gameName }).exec();
     if (!game) {
       throw new NotFoundException('Partida no encontrada.');
     }
-    return game;
+    return game || null;
   }
 
   // Encontrar partida por usuario que la creó.

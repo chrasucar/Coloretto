@@ -34,8 +34,18 @@ export class GameController {
   // Obtener el nombre del juego.
 
   @Get(':gameName')
-  async getGameByName(@Param('gameName') gameName: string): Promise<Game> {
-    return this.gameService.findGameByName(gameName);
+  async getGameByName(@Param('gameName') gameName: string): Promise<Game | { message: string }> {
+
+    const game = this.gameService.findGameByName(gameName);
+
+    if (!game) {
+
+      return { message: `Juego con nombre '${gameName}' no encontrado.` };
+
+    }
+
+    return game;
+    
   }
 
   // Obtener si un usuario es dueño de una partida.
