@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { User } from 'src/users/user.schema';
 import { v4 as uuidv4 } from 'uuid';
 
 export type MessageDocument = Message & Document;
@@ -13,8 +14,8 @@ export class Message {
   @Prop({ type: String, default: () => uuidv4(), unique: true })
   messageId: string;
 
-  @Prop({ required: true, type: String })
-  sender: string;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  sender: User;
 
   @Prop({ required: true, type: String })
   text: string;
