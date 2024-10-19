@@ -18,9 +18,8 @@ export class MessagesService {
     references: string[] = [],
     gameName?: string,
   ): Promise<Message> {
-    const newMessage = new this.messageModel({ sender: { 
-      username: sender.username, profilePicture: sender.profilePicture, }, 
-      text, references, gameName });
+    const newMessage = new this.messageModel({ sender: sender.username, senderProfilePicture: sender.profilePicture,
+    text, references, gameName });
     return newMessage.save();
   }
 
