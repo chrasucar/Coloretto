@@ -56,10 +56,9 @@ const GamePage = observer(() => {
 
     const fetchData = async () => {
       if (gameName) {
-        await store.fetchGames();
         try {
+          await store.fetchGames();
           const gameData = await store.getGameDetails(gameName);
-
           if (gameData) {
             setSelectedGame(gameName);
             setGameDetails(gameData);
@@ -67,10 +66,16 @@ const GamePage = observer(() => {
             store.setCurrentUserGame(gameName);
             setPrepTime(gameData.preparationTime);
           }
+          else {
+            return null;
+          }
         } catch (error) {
           toast.error('Error al obtener los detalles de la partida.');
           navigate('/play/join');
         }
+      }
+      else {
+        return null;
       }
     };
 
