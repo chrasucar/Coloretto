@@ -17,6 +17,9 @@ export class Message {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   sender: User;
 
+  @Prop()
+  senderProfilePicture: string;
+
   @Prop({ required: true, type: String })
   text: string;
 
